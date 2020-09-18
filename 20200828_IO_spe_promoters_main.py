@@ -4,6 +4,23 @@ Created on Fri Aug 28 15:38:21 2020
 
 @author: dorga
 """
+def EqualizeHistogram(a, bins):
+	a = np.array(a)
+	hist, bins2 = np.histogram(a, bins=bins)
+
+	#Compute CDF from histogram
+	cdf = np.cumsum(hist, dtype=np.float64)
+	cdf = np.hstack(([0], cdf))
+	cdf = cdf / cdf[-1]
+
+	#Do equalization
+	binnum = np.digitize(a, bins, True)-1
+	neg = np.where(binnum < 0)
+	binnum[neg] = 0
+
+	aeq = cdf[binnum] * bins[-1]
+
+	return aeq
 
 #IMAGE ANALYSIS PLOT
 import matplotlib.backends.backend_pdf
@@ -123,9 +140,9 @@ for PATH in DIR__:
             tDTomato_OUT_inf = []
             for k in range(len(ROI_crop.X)):
                 tDTomato_IO.append(IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]])
-                if ROI_crop.Y[k]<w*0.4:
+                if ROI_crop.Y[k]<w*0.5:
                     tDTomato_IO_sup.append(IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]])
-                elif ROI_crop.Y[k]>w*0.6:
+                elif ROI_crop.Y[k]>w*0.5:
                     tDTomato_IO_inf.append(IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]])
                 IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]] = 0
             
@@ -150,7 +167,7 @@ for PATH in DIR__:
             for k in range(len(HALF_LABEL_LIST.NAME.tolist())):
                 if HALF_LABEL_LIST.NAME[k] == filename:
                     position__ = HALF_LABEL_LIST.POSITION[k]
-                    dilution__ = HALF_LABEL_LIST.DILUTION[k]
+                    dilution__ = HALF_LABEL_LIST.DILUTION[k]v
                     if position__=='UP':
                         eGFP_HALF_IO.append(np.nanmean(eGFP_IO_sup))
                         eGFP_HALF_IO_OUT.append(np.nanmean(eGFP_OUT_sup))
@@ -198,16 +215,18 @@ pdf.close()
 
 #EXPRESSION PLOT
 plt.figure(figsize=(15,2))
-ax = plt.subplot(1, 10, 1)
-ax2 = plt.subplot(1, 10, 2, sharex=ax, sharey=ax)
-ax3 = plt.subplot(1, 10, 3, sharex=ax, sharey=ax)
-ax4 = plt.subplot(1, 10, 4, sharex=ax, sharey=ax)
-ax5 = plt.subplot(1, 10, 5, sharex=ax, sharey=ax)
-ax6 = plt.subplot(1, 10, 6)
-ax7 = plt.subplot(1, 10, 7)
-ax8 = plt.subplot(1, 10, 8)
-ax9 = plt.subplot(1, 10, 9)
-ax10 = plt.subplot(1, 10, 10)
+ax = plt.subplot(1, 12, 1)
+ax2 = plt.subplot(1, 12, 2, sharex=ax, sharey=ax)
+ax3 = plt.subplot(1, 12, 3, sharex=ax, sharey=ax)
+ax4 = plt.subplot(1, 12, 4, sharex=ax, sharey=ax)
+ax5 = plt.subplot(1, 12, 5, sharex=ax, sharey=ax)
+ax6 = plt.subplot(1, 12, 6)
+ax7 = plt.subplot(1, 12, 7)
+ax8 = plt.subplot(1, 12, 8)
+ax9 = plt.subplot(1, 12, 9)
+ax10 = plt.subplot(1, 12, 10)
+ax11 = plt.subplot(1, 12, 11)
+ax12 = plt.subplot(1, 12, 12)
 
 for i in range(len(FULL_PROMOTER_NAMES)):
     if ('2.5' in FULL_PROMOTER_NAMES[i])==True:
@@ -227,37 +246,38 @@ for i in range(len(FULL_PROMOTER_NAMES)):
         #ax5.scatter('SUSD4', FULL_eGFP_IO_OUT_RATIO[i], color='orange')
 
 
+
 ax.scatter(FULL_tDt_IO_OUT_RATIO, FULL_eGFP_IO_OUT_RATIO, color='black', alpha=0.1)
 ax2.scatter(FULL_tDt_IO_OUT_RATIO, FULL_eGFP_IO_OUT_RATIO, color='black', alpha=0.1)
 ax3.scatter(FULL_tDt_IO_OUT_RATIO, FULL_eGFP_IO_OUT_RATIO, color='black', alpha=0.1)
 ax4.scatter(FULL_tDt_IO_OUT_RATIO, FULL_eGFP_IO_OUT_RATIO, color='black', alpha=0.1)
 ax5.scatter(FULL_tDt_IO_OUT_RATIO, FULL_eGFP_IO_OUT_RATIO, color='black', alpha=0.1)
 
-a = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
-b = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
-c = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
-d = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
-e = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
-ax6.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
-
-
 a = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
 b = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
 c = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
 d = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
 e = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
+ax6.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
+
+
+a = [FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
+b = [FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
+c = [FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
+d = [FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
+e = [FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
 ax7.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
 
-a = [FULL_eGFP_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
-b = [FULL_eGFP_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
-c = [FULL_eGFP_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
-d = [FULL_eGFP_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
-e = [FULL_eGFP_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
+a = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
+b = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
+c = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
+d = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
+e = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
 ax8.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
 
 
-a = [FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
-b = [FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
+a = [FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
+b = [FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
 c = [FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
 d = [FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
 e = [FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
@@ -269,6 +289,21 @@ c = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_
 d = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
 e = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
 ax10.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
+
+a = [FULL_eGFP_IO_IN[k]/ FULL_tDt_IO_IN[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
+b = [FULL_eGFP_IO_IN[k]/ FULL_tDt_IO_IN[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
+c = [FULL_eGFP_IO_IN[k]/ FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
+d = [FULL_eGFP_IO_IN[k]/ FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
+e = [FULL_eGFP_IO_IN[k]/ FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
+ax11.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
+
+a = [FULL_eGFP_IO_OUT[k]/ FULL_tDt_IO_OUT[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
+b = [FULL_eGFP_IO_OUT[k]/ FULL_tDt_IO_OUT[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
+c = [FULL_eGFP_IO_OUT[k]/ FULL_tDt_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
+d = [FULL_eGFP_IO_OUT[k]/ FULL_tDt_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
+e = [FULL_eGFP_IO_OUT[k]/ FULL_tDt_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
+ax12.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
+
 
 ax.set_ylabel('eGFP IO / eGFP OUT')
 ax2.set_ylabel('eGFP IO / eGFP OUT')
@@ -286,9 +321,14 @@ ax2.set_title('Igsf9(1.3kb)-eGFP')
 ax3.set_title('5HTR2b-eGFP')
 ax4.set_title('PDX1-eGFP')
 ax5.set_title('SUSD4-eGFP')
-ax6.set_title('eGFP(IO)/tDt(IO)')
-ax7.set_title('eGFP(IO)')
-ax8.set_title('eGFP(OUT)')
+
+ax6.set_title('eGFP(IO)')
+ax7.set_title('tdTomato(IO)')
+ax8.set_title('eGFP(IO)/eGFP(OUT)')
+ax9.set_title('tdTomato(IO)/tdTomato(OUT)')
+ax10.set_title('eGFP(RATIO)/tdTomato(RATIO)')
+ax11.set_title('eGFP(IO)/tdTomato(IO)')
+ax12.set_title('eGFP(OUT)/tdTomato(OUT)')
 plt.tight_layout()
 
 
@@ -438,56 +478,79 @@ FULL_5HTr2b_SUBTRACTED = []
 FULL_PDX1_SUBTRACTED = []
 FULL_SUSD4_SUBTRACTED = []
 
+FULL_Igsf9_25_DIVIDED = []
+FULL_Igsf9_13_DIVIDED = []
+FULL_5HTr2b_DIVIDED = []
+FULL_PDX1_DIVIDED = []
+FULL_SUSD4_DIVIDED = []
+
 for i in range(len(PATHS[0])):
     file = PATHS[0][i]
     
-    if ('KD' in file)==True and ('60x' in file)==True and ('ROI' in file)==False:
+    if ('KD' in file)==True and ('0x' in file)==True and ('ROI' in file)==False and ('csv' in file)==True:
         print('OK')
         Cell_file = pd.read_csv(file)
         CELL_AREA = Cell_file.values[:,1]
-        eGFP_intensity = Cell_file.values[:,2]
-        tDt_intensity = Cell_file.values[:,3]
+        eGFP_intensity = Cell_file.values[:,3]
+        tDt_intensity = Cell_file.values[:,2]
         SUB_CHANNELS = Cell_file.values[:,5]
+        SUB_CHANNELS_2 = Cell_file.values[:,4]
         
-
         FULL_tDt_CELLS.append(tDt_intensity)
         FULL_tDt_AREA.append(CELL_AREA)
         
         if ('SUSD4' in file)==True:
             FULL_SUSD4_CELLS.append(eGFP_intensity)
             FULL_SUSD4_AREA.append(CELL_AREA)
-            FULL_SUSD4_SUBTRACTED.append(SUB_CHANNELS)
+            FULL_SUSD4_SUBTRACTED.append(SUB_CHANNELS-SUB_CHANNELS_2)
+            FULL_SUSD4_DIVIDED.append(np.divide(eGFP_intensity, tDt_intensity))
+            #ax6.scatter(tDt_intensity, eGFP_intensity)
         elif ('PDX1' in file)==True:
             FULL_PDX1_CELLS.append(eGFP_intensity)
             FULL_PDX1_AREA.append(CELL_AREA)
-            FULL_PDX1_SUBTRACTED.append(SUB_CHANNELS)
+            FULL_PDX1_SUBTRACTED.append(SUB_CHANNELS-SUB_CHANNELS_2)
+            FULL_PDX1_DIVIDED.append(np.divide(eGFP_intensity, tDt_intensity))
+            #ax5.scatter(tDt_intensity, eGFP_intensity)
         elif ('5HTr2b' in file)==True:
             FULL_5HTr2b_CELLS.append(eGFP_intensity)
             FULL_5HTr2b_AREA.append(CELL_AREA)
-            FULL_5HTr2b_SUBTRACTED.append(SUB_CHANNELS)
+            FULL_5HTr2b_SUBTRACTED.append(SUB_CHANNELS-SUB_CHANNELS_2)
+            FULL_5HTr2b_DIVIDED.append(np.divide(eGFP_intensity, tDt_intensity))
+            #ax4.scatter(tDt_intensity, eGFP_intensity)
         elif ('Igsf9_1.3' in file)==True:
             FULL_Igsf9_13_CELLS.append(eGFP_intensity)
             FULL_Igsf9_13_AREA.append(CELL_AREA)
-            FULL_Igsf9_13_SUBTRACTED.append(SUB_CHANNELS)
+            FULL_Igsf9_13_SUBTRACTED.append(SUB_CHANNELS-SUB_CHANNELS_2)
+            FULL_Igsf9_13_DIVIDED.append(np.divide(eGFP_intensity, tDt_intensity))
+            #ax3.scatter(tDt_intensity, eGFP_intensity)
         elif ('Igsf9_2.5' in file)==True and ('2.5' in file)==True:
             FULL_Igsf9_25_CELLS.append(eGFP_intensity)
             FULL_Igsf9_25_AREA.append(CELL_AREA)
-            FULL_Igsf9_25_SUBTRACTED.append(SUB_CHANNELS)
-            
+            FULL_Igsf9_25_SUBTRACTED.append(SUB_CHANNELS-SUB_CHANNELS_2)
+            FULL_Igsf9_25_DIVIDED.append(np.divide(eGFP_intensity, tDt_intensity))
+            #ax2.scatter(tDt_intensity, eGFP_intensity)
+
+FULL_SUSD4_CELLS = np.concatenate(FULL_SUSD4_CELLS)/np.nanmax(np.concatenate(FULL_SUSD4_CELLS))
+FULL_PDX1_CELLS = np.concatenate(FULL_PDX1_CELLS)/np.nanmax(np.concatenate(FULL_PDX1_CELLS))
+FULL_Igsf9_25_CELLS = np.concatenate(FULL_Igsf9_25_CELLS)/np.nanmax(np.concatenate(FULL_Igsf9_25_CELLS))
+FULL_Igsf9_13_CELLS = np.concatenate(FULL_Igsf9_13_CELLS)/np.nanmax(np.concatenate(FULL_Igsf9_13_CELLS))
+FULL_5HTr2b_CELLS = np.concatenate(FULL_5HTr2b_CELLS)/np.nanmax(np.concatenate(FULL_5HTr2b_CELLS))
+FULL_tDt_CELLS = np.concatenate(FULL_tDt_CELLS)/np.nanmax(np.concatenate(FULL_tDt_CELLS))
+
 plt.figure(figsize=(14,7))
 ax = plt.subplot(461)
-ax2 = plt.subplot(462, sharex=ax, sharey=ax)
-ax3 = plt.subplot(463, sharex=ax, sharey=ax)
-ax4 = plt.subplot(464, sharex=ax, sharey=ax)
-ax5 = plt.subplot(465, sharex=ax, sharey=ax)
-ax6 = plt.subplot(466, sharex=ax, sharey=ax)
+ax2 = plt.subplot(462)
+ax3 = plt.subplot(463, sharex=ax2, sharey=ax2)
+ax4 = plt.subplot(464, sharex=ax2, sharey=ax2)
+ax5 = plt.subplot(465, sharex=ax2, sharey=ax2)
+ax6 = plt.subplot(466, sharex=ax2, sharey=ax2)
 
 ax7 = plt.subplot(467)
-ax8 = plt.subplot(468, sharex=ax)
-ax9 = plt.subplot(469, sharex=ax, sharey=ax8)
-ax10 = plt.subplot(4, 6, 10, sharex=ax, sharey=ax8)
-ax11 = plt.subplot(4,6 ,11, sharex=ax, sharey=ax8)
-ax12 = plt.subplot(4, 6, 12, sharex=ax, sharey=ax8)
+ax8 = plt.subplot(468)
+ax9 = plt.subplot(469, sharex=ax8, sharey=ax8)
+ax10 = plt.subplot(4, 6, 10, sharex=ax8, sharey=ax8)
+ax11 = plt.subplot(4,6 ,11, sharex=ax8, sharey=ax8)
+ax12 = plt.subplot(4, 6, 12, sharex=ax8, sharey=ax8)
 
 ax13 = plt.subplot(4, 6, 13)
 ax14 = plt.subplot(4, 6, 14)
@@ -503,7 +566,10 @@ ax22 = plt.subplot(4, 6, 22, sharex=ax20, sharey=ax20)
 ax23 = plt.subplot(4, 6, 23, sharex=ax20, sharey=ax20)
 ax24 = plt.subplot(4, 6, 24, sharex=ax20, sharey=ax20)
 
-ax.scatter(np.concatenate(FULL_tDt_AREA), np.concatenate(FULL_tDt_CELLS))
+
+ax.scatter(np.concatenate(FULL_tDt_AREA), FULL_tDt_CELLS)
+
+"""
 ax2.scatter(np.concatenate(FULL_Igsf9_25_AREA), np.concatenate(FULL_Igsf9_25_CELLS))
 ax3.scatter(np.concatenate(FULL_Igsf9_13_AREA), np.concatenate(FULL_Igsf9_13_CELLS))
 ax4.scatter(np.concatenate(FULL_5HTr2b_AREA), np.concatenate(FULL_5HTr2b_CELLS))
@@ -515,35 +581,117 @@ ax9.scatter(np.concatenate(FULL_Igsf9_13_AREA), np.concatenate(FULL_Igsf9_13_SUB
 ax10.scatter(np.concatenate(FULL_5HTr2b_AREA), np.concatenate(FULL_5HTr2b_SUBTRACTED))
 ax11.scatter(np.concatenate(FULL_PDX1_AREA), np.concatenate(FULL_PDX1_SUBTRACTED))
 ax12.scatter(np.concatenate(FULL_SUSD4_AREA), np.concatenate(FULL_SUSD4_SUBTRACTED))
+"""
 
-ASTROS = [np.concatenate(FULL_Igsf9_25_SUBTRACTED)[k] for k in range(len(np.concatenate(FULL_Igsf9_25_SUBTRACTED))) if np.concatenate(FULL_Igsf9_25_AREA)[k]<100]
-NEURONS = [np.concatenate(FULL_Igsf9_25_SUBTRACTED)[k] for k in range(len(np.concatenate(FULL_Igsf9_25_SUBTRACTED))) if np.concatenate(FULL_Igsf9_25_AREA)[k]>=100]
-ax14.boxplot([ASTROS, NEURONS], labels=['Astro.', 'Neu.'], vert=False)
-ax20.hist([ASTROS, NEURONS], histtype='stepfilled', alpha=0.5 )
+ax2.hist([FULL_Igsf9_25_CELLS,FULL_tDt_CELLS], histtype='stepfilled', alpha=0.5, normed=True )
+ax3.hist([FULL_Igsf9_13_CELLS,FULL_tDt_CELLS], histtype='stepfilled', alpha=0.5, normed=True )
+ax4.hist([FULL_5HTr2b_CELLS,FULL_tDt_CELLS], histtype='stepfilled', alpha=0.5, normed=True )
+ax5.hist([FULL_PDX1_CELLS,FULL_tDt_CELLS], histtype='stepfilled', alpha=0.5, normed=True )
+ax6.hist([FULL_SUSD4_CELLS,FULL_tDt_CELLS], histtype='stepfilled', alpha=0.5, normed=True )
 
-ASTROS = [np.concatenate(FULL_Igsf9_13_SUBTRACTED)[k] for k in range(len(np.concatenate(FULL_Igsf9_13_SUBTRACTED))) if np.concatenate(FULL_Igsf9_13_AREA)[k]<100]
-NEURONS = [np.concatenate(FULL_Igsf9_25_SUBTRACTED)[k] for k in range(len(np.concatenate(FULL_Igsf9_13_SUBTRACTED))) if np.concatenate(FULL_Igsf9_13_AREA)[k]>=100]
-ax15.boxplot([ASTROS, NEURONS], labels=['Astro.', 'Neu.'], vert=False)
-ax21.hist([ASTROS, NEURONS], histtype='stepfilled', alpha=0.5 )
+ax13.hist(FULL_Igsf9_25_CELLS, histtype='step', alpha=0.5, normed=True, cumulative=True, bins=100 )
+ax13.hist(FULL_Igsf9_13_CELLS, histtype='step', alpha=0.5, normed=True, cumulative=True, bins=100 )
+ax13.hist(FULL_5HTr2b_CELLS, histtype='step', alpha=0.5, normed=True, cumulative=True, bins=100 )
+ax13.hist(FULL_PDX1_CELLS, histtype='step', alpha=0.5, normed=True, cumulative=True, bins=100 )
+ax13.hist(FULL_SUSD4_CELLS, histtype='step', alpha=0.5, normed=True, cumulative=True, bins=100 )
+ax13.hist(FULL_tDt_CELLS, histtype='step', alpha=0.5, color='red', normed=True, cumulative=True, bins=100 )
 
-ASTROS = [np.concatenate(FULL_5HTr2b_SUBTRACTED)[k] for k in range(len(np.concatenate(FULL_5HTr2b_SUBTRACTED))) if np.concatenate(FULL_5HTr2b_AREA)[k]<100]
-NEURONS = [np.concatenate(FULL_5HTr2b_SUBTRACTED)[k] for k in range(len(np.concatenate(FULL_5HTr2b_SUBTRACTED))) if np.concatenate(FULL_5HTr2b_AREA)[k]>=100]
-ax16.boxplot([ASTROS, NEURONS], labels=['Astro.', 'Neu.'], vert=False)
-ax22.hist([ASTROS, NEURONS], histtype='stepfilled', alpha=0.5 )
+ASTRO_LABEL = []
+NEURON_LABEL = []
+EXPE_ID = []
 
-ASTROS = [np.concatenate(FULL_PDX1_SUBTRACTED)[k] for k in range(len(np.concatenate(FULL_PDX1_SUBTRACTED))) if np.concatenate(FULL_PDX1_AREA)[k]<100]
-NEURONS = [np.concatenate(FULL_PDX1_SUBTRACTED)[k] for k in range(len(np.concatenate(FULL_PDX1_SUBTRACTED))) if np.concatenate(FULL_PDX1_AREA)[k]>=100]
-ax17.boxplot([ASTROS, NEURONS], labels=['Astro.', 'Neu.'], vert=False)
-ax23.hist([ASTROS, NEURONS], histtype='stepfilled', alpha=0.5 )
+ASTROS = [np.concatenate(FULL_Igsf9_25_DIVIDED)[k] for k in range(len(np.concatenate(FULL_Igsf9_25_DIVIDED))) if np.concatenate(FULL_Igsf9_25_AREA)[k]<100]
+NEURONS = [np.concatenate(FULL_Igsf9_25_DIVIDED)[k] for k in range(len(np.concatenate(FULL_Igsf9_25_DIVIDED))) if np.concatenate(FULL_Igsf9_25_AREA)[k]>=100]
+Igsf9_25_BOOST = [NEURONS[k] for k in range(len(NEURONS)) if NEURONS[k]>=1.25]
+Igsf9_25_LAB = [NEURONS[k] for k in range(len(NEURONS)) if 0.75<NEURONS[k]<1.25]
+Igsf9_25_NON_LAB = [NEURONS[k] for k in range(len(NEURONS)) if NEURONS[k]<=0.75]
+Igsf9_25_BOOST_ASTROS = [ASTROS[k] for k in range(len(ASTROS)) if ASTROS[k]>=1.25]
+Igsf9_25_LAB_ASTROS = [ASTROS[k] for k in range(len(ASTROS)) if 0.75<ASTROS[k]<1.25]
+Igsf9_25_NON_LAB_ASTROS = [NEURONS[k] for k in range(len(ASTROS)) if ASTROS[k]<=0.75]
+ASTRO_LABEL.append(np.nanmean(ASTROS))
+NEURON_LABEL.append(np.nanmean(NEURONS))
+EXPE_ID.append('Igsf9(2.5)')
+ax8.boxplot([ASTROS, NEURONS], labels=['Astro.', 'Neu.'], vert=False)
+ax14.hist(NEURONS, histtype='stepfilled', alpha=0.5, normed=True )
+ax20.hist(ASTROS, histtype='stepfilled', alpha=0.5, normed=True )
 
-ASTROS = [np.concatenate(FULL_SUSD4_SUBTRACTED)[k] for k in range(len(np.concatenate(FULL_SUSD4_SUBTRACTED))) if np.concatenate(FULL_SUSD4_AREA)[k]<100]
-NEURONS = [np.concatenate(FULL_SUSD4_SUBTRACTED)[k] for k in range(len(np.concatenate(FULL_SUSD4_SUBTRACTED))) if np.concatenate(FULL_SUSD4_AREA)[k]>=100]
-ax18.boxplot([ASTROS, NEURONS], labels=['Astro.', 'Neu.'], vert=False)
-ax24.hist([ASTROS, NEURONS], histtype='stepfilled', alpha=0.5 )
+ASTROS = [np.concatenate(FULL_Igsf9_13_DIVIDED)[k] for k in range(len(np.concatenate(FULL_Igsf9_13_DIVIDED))) if np.concatenate(FULL_Igsf9_13_AREA)[k]<100]
+NEURONS = [np.concatenate(FULL_Igsf9_25_DIVIDED)[k] for k in range(len(np.concatenate(FULL_Igsf9_13_DIVIDED))) if np.concatenate(FULL_Igsf9_13_AREA)[k]>=100]
+Igsf9_13_BOOST = [NEURONS[k] for k in range(len(NEURONS)) if NEURONS[k]>=1.25]
+Igsf9_13_LAB = [NEURONS[k] for k in range(len(NEURONS)) if 0.75<NEURONS[k]<1.25]
+Igsf9_13_NON_LAB = [NEURONS[k] for k in range(len(NEURONS)) if NEURONS[k]<=0.75]
+Igsf9_13_BOOST_ASTROS = [ASTROS[k] for k in range(len(ASTROS)) if ASTROS[k]>=1.25]
+Igsf9_13_LAB_ASTROS = [ASTROS[k] for k in range(len(ASTROS)) if 0.75<ASTROS[k]<1.25]
+Igsf9_13_NON_LAB_ASTROS = [NEURONS[k] for k in range(len(ASTROS)) if ASTROS[k]<=0.75]
+ASTRO_LABEL.append(np.nanmean(ASTROS))
+NEURON_LABEL.append(np.nanmean(NEURONS))
+EXPE_ID.append('Igsf9(1.3)')
+ax9.boxplot([ASTROS, NEURONS], labels=['Astro.', 'Neu.'], vert=False)
+ax15.hist(NEURONS, histtype='stepfilled', alpha=0.5, normed=True )
+ax21.hist(ASTROS, histtype='stepfilled', alpha=0.5, normed=True )
 
+ASTROS = [np.concatenate(FULL_5HTr2b_DIVIDED)[k] for k in range(len(np.concatenate(FULL_5HTr2b_DIVIDED))) if np.concatenate(FULL_5HTr2b_AREA)[k]<100]
+NEURONS = [np.concatenate(FULL_5HTr2b_DIVIDED)[k] for k in range(len(np.concatenate(FULL_5HTr2b_DIVIDED))) if np.concatenate(FULL_5HTr2b_AREA)[k]>=100]
+HTR2b_BOOST = [NEURONS[k] for k in range(len(NEURONS)) if NEURONS[k]>=1.25]
+HTR2b_LAB = [NEURONS[k] for k in range(len(NEURONS)) if 0.75<NEURONS[k]<1.25]
+HTR2b_NON_LAB = [NEURONS[k] for k in range(len(NEURONS)) if NEURONS[k]<=0.75]
+HTR2b_BOOST_ASTROS = [ASTROS[k] for k in range(len(ASTROS)) if ASTROS[k]>=1.25]
+HTR2b_LAB_ASTROS = [ASTROS[k] for k in range(len(ASTROS)) if 0.75<ASTROS[k]<1.25]
+HTR2b_NON_LAB_ASTROS = [NEURONS[k] for k in range(len(ASTROS)) if ASTROS[k]<=0.75]
+ASTRO_LABEL.append(np.nanmean(ASTROS))
+NEURON_LABEL.append(np.nanmean(NEURONS))
+EXPE_ID.append('5Htr2b')
+ax10.boxplot([ASTROS, NEURONS], labels=['Astro.', 'Neu.'], vert=False)
+ax16.hist(NEURONS, histtype='stepfilled', alpha=0.5, normed=True )
+ax22.hist(ASTROS, histtype='stepfilled', alpha=0.5, normed=True )
+
+ASTROS = [np.concatenate(FULL_PDX1_DIVIDED)[k] for k in range(len(np.concatenate(FULL_PDX1_DIVIDED))) if np.concatenate(FULL_PDX1_AREA)[k]<100]
+NEURONS = [np.concatenate(FULL_PDX1_DIVIDED)[k] for k in range(len(np.concatenate(FULL_PDX1_DIVIDED))) if np.concatenate(FULL_PDX1_AREA)[k]>=100]
+PDX1_BOOST = [NEURONS[k] for k in range(len(NEURONS)) if NEURONS[k]>=1.25]
+PDX1_LAB = [NEURONS[k] for k in range(len(NEURONS)) if NEURONS[k]<1.25]
+PDX1_NON_LAB = [NEURONS[k] for k in range(len(NEURONS)) if NEURONS[k]<=0.75]
+PDX1_BOOST_ASTROS = [ASTROS[k] for k in range(len(ASTROS)) if ASTROS[k]>=1.25]
+PDX1_LAB_ASTROS = [ASTROS[k] for k in range(len(ASTROS)) if 0.75<ASTROS[k]<1.25]
+PDX1_NON_LAB_ASTROS = [NEURONS[k] for k in range(len(ASTROS)) if ASTROS[k]<=0.75]
+ASTRO_LABEL.append(np.nanmean(ASTROS))
+NEURON_LABEL.append(np.nanmean(NEURONS))
+EXPE_ID.append('PDX1)')
+ax11.boxplot([ASTROS, NEURONS], labels=['Astro.', 'Neu.'], vert=False)
+ax17.hist(NEURONS, histtype='stepfilled', alpha=0.5, normed=True )
+ax23.hist(ASTROS, histtype='stepfilled', alpha=0.5, normed=True )
+
+ASTROS = [np.concatenate(FULL_SUSD4_DIVIDED)[k] for k in range(len(np.concatenate(FULL_SUSD4_DIVIDED))) if np.concatenate(FULL_SUSD4_AREA)[k]<100]
+NEURONS = [np.concatenate(FULL_SUSD4_DIVIDED)[k] for k in range(len(np.concatenate(FULL_SUSD4_DIVIDED))) if np.concatenate(FULL_SUSD4_AREA)[k]>=100]
+SUSD4_BOOST = [NEURONS[k] for k in range(len(NEURONS)) if NEURONS[k]>=1.25]
+SUSD4_LAB = [NEURONS[k] for k in range(len(NEURONS)) if NEURONS[k]<1.25]
+SUSD4_NON_LAB = [NEURONS[k] for k in range(len(NEURONS)) if NEURONS[k]<=0.75]
+SUSD4_BOOST_ASTROS = [ASTROS[k] for k in range(len(ASTROS)) if ASTROS[k]>=1.25]
+SUSD4_LAB_ASTROS = [ASTROS[k] for k in range(len(ASTROS)) if 0.75<ASTROS[k]<1.25]
+SUSD4_NON_LAB_ASTROS = [NEURONS[k] for k in range(len(ASTROS)) if ASTROS[k]<=0.75]
+ASTRO_LABEL.append(np.nanmean(ASTROS))
+NEURON_LABEL.append(np.nanmean(NEURONS))
+EXPE_ID.append('SUSD4')
+ax12.boxplot([ASTROS, NEURONS], labels=['Astro.', 'Neu.'], vert=False)
+ax18.hist(NEURONS, histtype='stepfilled', alpha=0.5, normed=True )
+ax24.hist(ASTROS, histtype='stepfilled', alpha=0.5, normed=True )
 
 x, y = np.histogram(np.nan_to_num(np.concatenate(FULL_tDt_AREA)), bins=40)
+
 ax7.plot(y[1::], x)
+ax19.scatter(ASTRO_LABEL, NEURON_LABEL)
+for i in range(len(ASTRO_LABEL)):
+    ax19.text(ASTRO_LABEL[i], NEURON_LABEL[i], EXPE_ID[i])
+
+ax14.plot((1, 1), (0, 6), color='black', ls='--')
+ax15.plot((1, 1), (0, 6), color='black', ls='--')
+ax16.plot((1, 1), (0, 6), color='black', ls='--')
+ax17.plot((1, 1), (0, 6), color='black', ls='--')
+ax18.plot((1, 1), (0, 6), color='black', ls='--')
+ax20.plot((1, 1), (0, 6), color='black', ls='--')
+ax21.plot((1, 1), (0, 6), color='black', ls='--')
+ax22.plot((1, 1), (0, 6), color='black', ls='--')
+ax23.plot((1, 1), (0, 6), color='black', ls='--')
+ax24.plot((1, 1), (0, 6), color='black', ls='--')
 
 ax.set_title('CAG-tDt')
 ax2.set_title('Igsf9(2.5kb)-eGFP')
@@ -551,3 +699,51 @@ ax3.set_title('Igsf9(1.3kb)-eGFP')
 ax4.set_title('5HTr2b-eGFP')
 ax5.set_title('PDX1-eGFP')
 ax6.set_title('SUSD4-eGFP')
+ax19.set_xlabel('Astrocytes (SUB)')
+ax19.set_ylabel('Neurons (SUB)')
+
+
+
+non_labeled_SUSD4_NEURONS = len(SUSD4_NON_LAB)/(len(SUSD4_BOOST)+len(SUSD4_LAB)+len(SUSD4_NON_LAB))
+non_labeled_PDX1_NEURONS =len(PDX1_NON_LAB)/(len(PDX1_BOOST)+len(PDX1_LAB)+len(PDX1_NON_LAB))
+non_labeled_5HTr2b_NEURONS =len(HTR2b_NON_LAB)/(len(HTR2b_BOOST)+len(HTR2b_LAB)+len(HTR2b_NON_LAB))
+non_labeled_Igsf9_25_NEURONS = len(Igsf9_25_NON_LAB)/(len(Igsf9_25_BOOST)+len(Igsf9_25_LAB)+len(Igsf9_25_NON_LAB))
+non_labeled_Igsf9_13_NEURONS =len(Igsf9_13_NON_LAB)/(len(Igsf9_13_BOOST)+len(Igsf9_13_LAB)+len(Igsf9_13_NON_LAB))
+
+
+BOOST_SUSD4_NEURONS= len(SUSD4_BOOST)/(len(SUSD4_BOOST)+len(SUSD4_LAB)+len(SUSD4_NON_LAB))
+BOOST_PDX1_NEURONS =len(PDX1_BOOST)/(len(PDX1_BOOST)+len(PDX1_LAB)+len(PDX1_NON_LAB))
+BOOST_5HTr2b_NEURONS =len(HTR2b_BOOST)/(len(HTR2b_BOOST)+len(HTR2b_LAB)+len(HTR2b_NON_LAB))
+BOOST_Igsf9_25_NEURONS = len(Igsf9_25_BOOST)/(len(Igsf9_25_BOOST)+len(Igsf9_25_LAB)+len(Igsf9_25_NON_LAB))
+BOOST_Igsf9_13_NEURONS =len(Igsf9_13_BOOST)/(len(Igsf9_13_BOOST)+len(Igsf9_13_LAB)+len(Igsf9_13_NON_LAB))
+
+non_labeled_SUSD4_ASTROS = len(SUSD4_NON_LAB_ASTROS)/(len(SUSD4_BOOST_ASTROS)+len(SUSD4_LAB_ASTROS)+len(SUSD4_NON_LAB_ASTROS))
+non_labeled_PDX1_ASTROS =len(PDX1_NON_LAB_ASTROS)/(len(PDX1_BOOST_ASTROS)+len(PDX1_LAB_ASTROS)+len(PDX1_NON_LAB_ASTROS))
+non_labeled_5HTr2b_ASTROS =len(HTR2b_NON_LAB_ASTROS)/(len(HTR2b_BOOST_ASTROS)+len(HTR2b_LAB_ASTROS)+len(HTR2b_NON_LAB_ASTROS))
+non_labeled_Igsf9_25_ASTROS = len(Igsf9_25_NON_LAB_ASTROS)/(len(Igsf9_25_BOOST_ASTROS)+len(Igsf9_25_LAB_ASTROS)+len(Igsf9_25_NON_LAB_ASTROS))
+non_labeled_Igsf9_13_ASTROS =len(Igsf9_13_NON_LAB_ASTROS)/(len(Igsf9_13_BOOST_ASTROS)+len(Igsf9_13_LAB_ASTROS)+len(Igsf9_13_NON_LAB_ASTROS))
+
+
+BOOST_SUSD4_ASTROS = len(SUSD4_BOOST_ASTROS)/(len(SUSD4_BOOST_ASTROS)+len(SUSD4_LAB_ASTROS)+len(SUSD4_NON_LAB_ASTROS))
+BOOST_PDX1_ASTROS =len(PDX1_BOOST_ASTROS)/(len(PDX1_BOOST_ASTROS)+len(PDX1_LAB_ASTROS)+len(PDX1_NON_LAB_ASTROS))
+BOOST_5HTr2b_ASTROS =len(HTR2b_BOOST_ASTROS)/(len(HTR2b_BOOST_ASTROS)+len(HTR2b_LAB)+len(HTR2b_NON_LAB_ASTROS))
+BOOST_Igsf9_25_ASTROS = len(Igsf9_25_BOOST_ASTROS)/(len(Igsf9_25_BOOST_ASTROS)+len(Igsf9_25_LAB_ASTROS)+len(Igsf9_25_NON_LAB_ASTROS))
+BOOST_Igsf9_13_ASTROS =len(Igsf9_13_BOOST_ASTROS)/(len(Igsf9_13_BOOST_ASTROS)+len(Igsf9_13_LAB_ASTROS)+len(Igsf9_13_NON_LAB_ASTROS))
+
+
+
+plt.figure(figsize=(4,4))
+ax = plt.subplot(221)
+ax2 = plt.subplot(222)
+ax3 = plt.subplot(223)
+ax4 = plt.subplot(224)
+ax.bar(height = [non_labeled_Igsf9_25_ASTROS, non_labeled_Igsf9_13_ASTROS, non_labeled_5HTr2b_ASTROS, non_labeled_PDX1_ASTROS, non_labeled_SUSD4_ASTROS], x=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
+ax2.bar(height =[non_labeled_Igsf9_25_NEURONS, non_labeled_Igsf9_13_NEURONS, non_labeled_5HTr2b_NEURONS, non_labeled_PDX1_NEURONS, non_labeled_SUSD4_NEURONS], x=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
+ax3.bar(height =[BOOST_Igsf9_25_ASTROS, BOOST_Igsf9_13_ASTROS, BOOST_5HTr2b_ASTROS, BOOST_PDX1_ASTROS, BOOST_SUSD4_ASTROS], x=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
+ax4.bar(height =[BOOST_Igsf9_25_NEURONS, BOOST_Igsf9_13_NEURONS, BOOST_5HTr2b_NEURONS, BOOST_PDX1_NEURONS, BOOST_SUSD4_NEURONS], x=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
+
+ax.set_title('ASTROS')
+ax2.set_title('NEURONS')
+ax.set_ylabel('No-label')
+ax3.set_ylabel('Boost')
+plt.tight_layout()
