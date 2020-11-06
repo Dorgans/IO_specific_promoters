@@ -231,7 +231,7 @@ for i in range(len(FULL_PROMOTER_NAMES)):
     if ('2.5' in FULL_PROMOTER_NAMES[i])==True:
         ax.scatter(FULL_tDt_IO_OUT_RATIO[i], FULL_eGFP_IO_OUT_RATIO[i], color='blue')
         #ax5.scatter('Igsf', FULL_eGFP_IO_OUT_RATIO[i], color='blue')
-    elif ('5HTr' in FULL_PROMOTER_NAMES[i])==True:
+    elif ('5HTr' in FULL_PROMOTER_NAMES[i])==True and ('1.0' in FULL_PROMOTER_NAMES[i])==False and ('1.8' in FULL_PROMOTER_NAMES[i])==False:
         ax3.scatter(FULL_tDt_IO_OUT_RATIO[i], FULL_eGFP_IO_OUT_RATIO[i], color='red')
         #ax5.scatter('5HTr', FULL_eGFP_IO_OUT_RATIO[i], color='red')
     elif ('PDX' in FULL_PROMOTER_NAMES[i])==True:
@@ -255,39 +255,52 @@ ax5.scatter(FULL_tDt_IO_OUT_RATIO, FULL_eGFP_IO_OUT_RATIO, color='black', alpha=
 a = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
 b = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
 c = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
-d = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
-e = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
-ax6.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
+d = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.8kb)']
+e = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.0kb)']
+f = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
+g = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
+ax6.boxplot([a, b, c, d, e, f, g], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b(3.6)','5HTr2b(1.8)','5HTr2b(1.0)','PDX1','SUSD4'])
 
 
-a = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
-b = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
+a = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
+b = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
 c = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
-d = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
-e = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
-ax7.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
+d = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.8kb)']
+e = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.0kb)']
+f = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
+g = [FULL_eGFP_IO_IN[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
+ax7.boxplot([a, b, c, d, e, f, g], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b(3.6)','5HTr2b(1.8)','5HTr2b(1.0)','PDX1','SUSD4'])
 
-a = [FULL_eGFP_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
-b = [FULL_eGFP_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
+
+a = [FULL_eGFP_IO_OUT[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
+b = [FULL_eGFP_IO_OUT[k]for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
 c = [FULL_eGFP_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
-d = [FULL_eGFP_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
-e = [FULL_eGFP_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
-ax8.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
+d = [FULL_eGFP_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.8kb)']
+e = [FULL_eGFP_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.0kb)']
+f = [FULL_eGFP_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
+g = [FULL_eGFP_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
+ax8.boxplot([a, b, c, d, e, f, g], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b(3.6)','5HTr2b(1.8)','5HTr2b(1.0)','PDX1','SUSD4'])
 
 
-a = [FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
-b = [FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
-c = [FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
-d = [FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
-e = [FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
-ax9.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
 
-a = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
-b = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
-c = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
-d = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
-e = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
-ax10.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
+a = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
+b = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
+c = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
+d = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.8kb)']
+e = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.0kb)']
+f = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
+g = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
+ax9.boxplot([a, b, c, d, e, f, g], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b(3.6)','5HTr2b(1.8)','5HTr2b(1.0)','PDX1','SUSD4'])
+
+
+a = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
+b = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
+c = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
+d = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.8kb)']
+e = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.0kb)']
+f = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
+g = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
+ax10.boxplot([a, b, c, d, e, f, g], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b(3.6)','5HTr2b(1.8)','5HTr2b(1.0)','PDX1','SUSD4'])
 
 ax.set_ylabel('eGFP IO / eGFP OUT')
 ax2.set_ylabel('eGFP IO / eGFP OUT')
@@ -471,56 +484,80 @@ ax3.scatter(FULL_tDt_IO_OUT_RATIO, FULL_eGFP_IO_OUT_RATIO, color='black', alpha=
 ax4.scatter(FULL_tDt_IO_OUT_RATIO, FULL_eGFP_IO_OUT_RATIO, color='black', alpha=0.1)
 ax5.scatter(FULL_tDt_IO_OUT_RATIO, FULL_eGFP_IO_OUT_RATIO, color='black', alpha=0.1)
 
-a = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
-b = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
+a = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
+b = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
 c = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
-d = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
-e = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
-ax6.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
+d = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.8kb)']
+e = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.0kb)']
+f = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
+g = [FULL_eGFP_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
+
+FULL_eGFP_IO_IN_ALL = [np.nanmean(a), np.nanmean(b), np.nanmean(c), np.nanmean(d), np.nanmean(e), np.nanmean(f), np.nanmean(g)]
+ax6.boxplot([a, b, c, d, e, f, g], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b(3.6)','5HTr2b(1.8)','5HTr2b(1.0)','PDX1','SUSD4'])
 
 
-a = [FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
-b = [FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
+a = [FULL_tDt_IO_IN[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
+b = [FULL_tDt_IO_IN[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
 c = [FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
-d = [FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
-e = [FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
-ax7.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
-
-a = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
-b = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
-c = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
-d = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
-e = [FULL_eGFP_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
-ax8.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
+d = [FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.8kb)']
+e = [FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.0kb)']
+f = [FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
+g = [FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
+FULL_tDt_IO_IN_ALL = [np.nanmean(a), np.nanmean(b), np.nanmean(c), np.nanmean(d), np.nanmean(e), np.nanmean(f), np.nanmean(g)]
+ax7.boxplot([a, b, c, d, e, f, g], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b(3.6)','5HTr2b(1.8)','5HTr2b(1.0)','PDX1','SUSD4'])
 
 
-a = [FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
-b = [FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
-c = [FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
-d = [FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
-e = [FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
-ax9.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
+a = [FULL_eGFP_IO_OUT_RATIO[k]  for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
+b = [FULL_eGFP_IO_OUT_RATIO[k]  for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
+c = [FULL_eGFP_IO_OUT_RATIO[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
+d = [FULL_eGFP_IO_OUT_RATIO[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.8kb)']
+e = [FULL_eGFP_IO_OUT_RATIO[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.0kb)']
+f = [FULL_eGFP_IO_OUT_RATIO[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
+g = [FULL_eGFP_IO_OUT_RATIO[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
+FULL_eGFP_IO_OUT_RATIO_ALL = [np.nanmean(a), np.nanmean(b), np.nanmean(c), np.nanmean(d), np.nanmean(e), np.nanmean(f), np.nanmean(g)]
+ax8.boxplot([a, b, c, d, e, f, g], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b(3.6)','5HTr2b(1.8)','5HTr2b(1.0)','PDX1','SUSD4'])
 
-a = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
-b = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
-c = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
-d = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
-e = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
-ax10.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
+
+a = [FULL_tDt_IO_OUT_RATIO[k]  for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
+b = [FULL_tDt_IO_OUT_RATIO[k]  for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
+c = [FULL_tDt_IO_OUT_RATIO[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
+d = [FULL_tDt_IO_OUT_RATIO[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.8kb)']
+e = [FULL_tDt_IO_OUT_RATIO[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.0kb)']
+f = [FULL_tDt_IO_OUT_RATIO[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
+g = [FULL_tDt_IO_OUT_RATIO[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
+FULL_tDt_IO_OUT_RATIO_ALL = [np.nanmean(a), np.nanmean(b), np.nanmean(c), np.nanmean(d), np.nanmean(e), np.nanmean(f), np.nanmean(g)]
+ax9.boxplot([a, b, c, d, e, f, g], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b(3.6)','5HTr2b(1.8)','5HTr2b(1.0)','PDX1','SUSD4'])
+
+
+a = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k]  for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
+b = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k]  for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
+c = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
+d = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.8kb)']
+e = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.0kb)']
+f = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
+g = [FULL_eGFP_IO_OUT_RATIO[k]/FULL_tDt_IO_OUT_RATIO[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
+FULL_eGFP_IO_OUT_RATIO_div_tdT_OUT_RATIO_ALL = [np.nanmean(a), np.nanmean(b), np.nanmean(c), np.nanmean(d), np.nanmean(e), np.nanmean(f), np.nanmean(g)]
+ax10.boxplot([a, b, c, d, e, f, g], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b(3.6)','5HTr2b(1.8)','5HTr2b(1.0)','PDX1','SUSD4'])
 
 a = [FULL_eGFP_IO_IN[k]/ FULL_tDt_IO_IN[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
-b = [FULL_eGFP_IO_IN[k]/ FULL_tDt_IO_IN[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
+b = [FULL_eGFP_IO_IN[k]/ FULL_tDt_IO_IN[k]  for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
 c = [FULL_eGFP_IO_IN[k]/ FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
-d = [FULL_eGFP_IO_IN[k]/ FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
-e = [FULL_eGFP_IO_IN[k]/ FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
-ax11.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
+d = [FULL_eGFP_IO_IN[k]/ FULL_tDt_IO_IN[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.8kb)']
+e = [FULL_eGFP_IO_IN[k]/ FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.0kb)']
+f = [FULL_eGFP_IO_IN[k]/ FULL_tDt_IO_IN[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
+g = [FULL_eGFP_IO_IN[k]/ FULL_tDt_IO_IN[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
+FULL_eGFP_IO_IN_RATIO_div_tdT_IN_RATIO_ALL = [np.nanmean(a), np.nanmean(b), np.nanmean(c), np.nanmean(d), np.nanmean(e), np.nanmean(f), np.nanmean(g)]
+ax11.boxplot([a, b, c, d, e, f, g], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b(3.6)','5HTr2b(1.8)','5HTr2b(1.0)','PDX1','SUSD4'])
 
 a = [FULL_eGFP_IO_OUT[k]/ FULL_tDt_IO_OUT[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='2.5kb']
-b = [FULL_eGFP_IO_OUT[k]/ FULL_tDt_IO_OUT[k] for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
+b = [FULL_eGFP_IO_OUT[k]/ FULL_tDt_IO_OUT[k]  for k in range(len(FULL_eGFP_IO_OUT_RATIO)) if FULL_PROMOTER_NAMES[k]=='1.3kb']
 c = [FULL_eGFP_IO_OUT[k]/ FULL_tDt_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b']
-d = [FULL_eGFP_IO_OUT[k]/ FULL_tDt_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
-e = [FULL_eGFP_IO_OUT[k]/ FULL_tDt_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
-ax12.boxplot([a, b, c, d, e], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b','PDX1','SUSD4'])
+d = [FULL_eGFP_IO_OUT[k]/ FULL_tDt_IO_OUT[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.8kb)']
+e = [FULL_eGFP_IO_OUT[k]/ FULL_tDt_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='5HTr2b(1.0kb)']
+f = [FULL_eGFP_IO_OUT[k]/ FULL_tDt_IO_OUT[k]  for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='PDX1']
+g = [FULL_eGFP_IO_OUT[k]/ FULL_tDt_IO_OUT[k] for k in range(len(FULL_PROMOTER_NAMES)) if FULL_PROMOTER_NAMES[k]=='SUSD4']
+FULL_eGFP_IO_OUT_div_tdT_OUT_ALL = [np.nanmean(a), np.nanmean(b), np.nanmean(c), np.nanmean(d), np.nanmean(e), np.nanmean(f), np.nanmean(g)]
+ax12.boxplot([a, b, c, d, e, f, g], labels=['Igsf9(2.5)', 'Igsf9(1.3)','5HTr2b(3.6)','5HTr2b(1.8)','5HTr2b(1.0)','PDX1','SUSD4'])
 
 
 ax.set_ylabel('eGFP IO / eGFP OUT')
