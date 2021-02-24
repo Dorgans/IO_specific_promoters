@@ -4,6 +4,7 @@ Created on Mon Dec 14 22:13:44 2020
 
 @author: dorga
 """
+import seaborn as sns
 
 #LOADS CSVS
 
@@ -31,6 +32,8 @@ FULL_PDX1_CELLS = []
 FULL_PDX1_AREA = []
 FULL_SUSD4_CELLS = []
 FULL_SUSD4_AREA = []
+FULL_CAG_CELLS = []
+FULL_CAG_AREA = []
 
 FULL_Igsf9_25_CELLS_tDt = []
 FULL_Igsf9_37_CELLS_tDt = []
@@ -41,6 +44,7 @@ FULL_5HTr2b_18_CELLS_tDt = []
 FULL_5HTr2b_30_CELLS_tDt = []
 FULL_PDX1_CELLS_tDt = []
 FULL_SUSD4_CELLS_tDt = []
+FULL_CAG_CELLS_tDt = []
 
 FULL_Igsf9_37_DIVIDED = []
 FULL_Igsf9_25_DIVIDED = []
@@ -51,6 +55,8 @@ FULL_5HTr2b_30_DIVIDED = []
 FULL_5HTr2b_DIVIDED = []
 FULL_PDX1_DIVIDED = []
 FULL_SUSD4_DIVIDED = []
+FULL_CAG_DIVIDED = []
+
 FULL_Igsf9_37_SUBTRACTED = []
 FULL_Igsf9_25_SUBTRACTED = []
 FULL_Igsf9_13_SUBTRACTED = []
@@ -60,6 +66,7 @@ FULL_5HTr2b_30_SUBTRACTED = []
 FULL_5HTr2b_SUBTRACTED = []
 FULL_PDX1_SUBTRACTED = []
 FULL_SUSD4_SUBTRACTED = []
+FULL_CAG_SUBTRACTED = []
 
 plt.figure(figsize=(14,7))
 ax = plt.subplot(461)
@@ -168,8 +175,13 @@ for i in range(len(PATHS[0])):
             FULL_Igsf9_37_SUBTRACTED.append(np.subtract(SUB_CHANNELS, SUB_CHANNELS_2))
             FULL_Igsf9_37_DIVIDED.append(np.divide(eGFP_intensity, tDt_intensity))
             #ax2.scatter(tDt_intensity, eGFP_intensity)
-            
-            
+        elif ('AAV9' in file)==True:
+            FULL_CAG_CELLS.append(eGFP_intensity)
+            FULL_CAG_CELLS_tDt.append(tDt_intensity)
+            FULL_CAG_AREA.append(CELL_AREA)
+            FULL_CAG_SUBTRACTED.append(np.subtract(SUB_CHANNELS, SUB_CHANNELS_2))
+            FULL_CAG_DIVIDED.append(np.divide(eGFP_intensity, tDt_intensity))
+            #ax2.scatter(tDt_intensity, eGFP_intensity)
             
 #PLOTS FOR Igsf9 group
             
@@ -451,7 +463,7 @@ ax4.boxplot([CELLS, CELLS_1, CELLS_2, CELLS_3])
 CELLS = ([FULL_5HTr2b_10_CELLS[j][i] for i in range(len(FULL_5HTr2b_10_CELLS[j])) if FULL_5HTr2b_10_AREA[j][i]>100])
 MEAN = np.nanmean(CELLS)
 
-CELLS_tDt = ([FULL_5HTr2b_10_CELLS_tDt[j][i] for i in range(len(FULL_5HTr2b_10_CELLS[j])) if FULL_5HTr2b_10_AREA[j][i]>100])
+CELLS_tDt = ([FULL_5HTr2b_10_CELLS_tDt[j][i] for i in range(len(FULL_5HTr2b_10_CELLS[j])) if FULL_5HTr2b_10_AREA[j][i]>100]) 
 MEAN = np.nanmean(CELLS)
 ax5.scatter(CELLS, CELLS_tDt)
 ax6.hist(CELLS, alpha=0.7)
@@ -728,6 +740,122 @@ MEAN = np.nanmean(CELLS)
 CELLS_tDt = ([FULL_PDX1_CELLS_tDt[j][i] for i in range(len(FULL_PDX1_CELLS[j])) if FULL_PDX1_AREA[j][i]<100])
 MEAN = np.nanmean(CELLS)
 ax11.scatter(CELLS, CELLS_tDt)
+
+ax7.set_title('eGFP Astro.')
+ax8.set_title('tD-Tomato Astro.')
+ax9.set_title('Equalized Sub. Astro.')
+ax10.set_title('eGFP/tD-tomato Astro.')
+ax11.set_xlabel('eGFP')
+ax11.set_ylabel('tD-Tomato')
+
+plt.tight_layout()
+
+
+
+
+
+plt.figure(figsize=(10, 4), num = 'CAG')
+ax1 = plt.subplot(2, 6, 1)
+ax2 = plt.subplot(2, 6, 2)
+ax3 = plt.subplot(2, 6, 3)
+ax4 = plt.subplot(2, 6, 4)
+ax5 = plt.subplot(2, 6, 5)
+ax6 = plt.subplot(2, 6, 6)
+ax7 = plt.subplot(2, 6, 7)
+ax8 = plt.subplot(2, 6, 8)
+ax9 = plt.subplot(2, 6, 9)
+ax10 = plt.subplot(2, 6, 10)
+ax11 = plt.subplot(2, 6, 11)
+ax12 = plt.subplot(2, 6, 12)
+j=0
+
+CELLS = ([FULL_CAG_CELLS[j][i] for i in range(len(FULL_CAG_CELLS[j])) if FULL_CAG_AREA[j][i]>100])
+MEAN_CAG_NEURO = CELLS
+
+ax1.boxplot([CELLS])
+
+
+CELLS = ([FULL_CAG_CELLS_tDt[j][i] for i in range(len(FULL_CAG_CELLS[j])) if FULL_CAG_AREA[j][i]>100])
+MEAN = np.nanmean(CELLS)
+MEAN_CAG_NEURO_tDt = CELLS
+
+
+ax2.boxplot([CELLS])
+
+
+CELLS = ([FULL_CAG_SUBTRACTED[j][i] for i in range(len(FULL_CAG_CELLS[j])) if FULL_CAG_AREA[j][i]>100])
+MEAN = np.nanmean(CELLS)
+MEAN_CAG_SUBTRACTED_NEURO = CELLS
+
+
+ax3.boxplot([CELLS])
+
+
+
+CELLS = ([FULL_CAG_DIVIDED[j][i] for i in range(len(FULL_CAG_CELLS[j])) if FULL_CAG_AREA[j][i]>100])
+MEAN_CAG_DIVIDED_NEURO = CELLS
+
+ax4.boxplot([CELLS])
+
+
+
+CELLS = ([FULL_CAG_CELLS[j][i] for i in range(len(FULL_CAG_CELLS[j])) if FULL_CAG_AREA[j][i]>100])
+MEAN = np.nanmean(CELLS)
+
+CELLS_tDt = ([FULL_CAG_CELLS_tDt[j][i] for i in range(len(FULL_CAG_CELLS[j])) if FULL_CAG_AREA[j][i]>100])
+MEAN = np.nanmean(CELLS)
+ax5.scatter(CELLS, CELLS_tDt)
+ax6.hist(CELLS, alpha=0.7)
+ax12.hist(CELLS_tDt, alpha=0.7, color='red')
+
+
+ax1.set_title('eGFP')
+ax2.set_title('tD-Tomato')
+ax3.set_title('Equalized Sub.')
+ax4.set_title('eGFP/tD-tomato')
+ax5.set_xlabel('eGFP')
+ax5.set_ylabel('tD-Tomato')
+
+
+CELLS = ([FULL_CAG_CELLS[j][i] for i in range(len(FULL_CAG_CELLS[j])) if FULL_CAG_AREA[j][i]<100])
+MEAN_CAG_ASTRO = CELLS
+
+
+ax7.boxplot([CELLS])
+
+
+CELLS = ([FULL_CAG_CELLS_tDt[j][i] for i in range(len(FULL_CAG_CELLS[j])) if FULL_CAG_AREA[j][i]<100])
+MEAN = np.nanmean(CELLS)
+
+
+ax8.boxplot([CELLS])
+
+
+CELLS = ([FULL_CAG_SUBTRACTED[j][i] for i in range(len(FULL_CAG_CELLS[j])) if FULL_CAG_AREA[j][i]<100])
+MEAN = np.nanmean(CELLS)
+
+
+ax9.boxplot([CELLS])
+
+
+
+CELLS = ([FULL_CAG_DIVIDED[j][i] for i in range(len(FULL_CAG_CELLS[j])) if FULL_CAG_AREA[j][i]<100])
+MEAN_CAG_DIVIDED_ASTRO = CELLS
+
+
+
+ax10.boxplot([CELLS])
+
+
+
+CELLS = ([FULL_CAG_CELLS[j][i] for i in range(len(FULL_CAG_CELLS[j])) if FULL_CAG_AREA[j][i]<100])
+MEAN = np.nanmean(CELLS)
+
+CELLS_tDt = ([FULL_CAG_CELLS_tDt[j][i] for i in range(len(FULL_CAG_CELLS[j])) if FULL_CAG_AREA[j][i]<100])
+MEAN = np.nanmean(CELLS)
+ax11.scatter(CELLS, CELLS_tDt)
+
+
 
 ax7.set_title('eGFP Astro.')
 ax8.set_title('tD-Tomato Astro.')

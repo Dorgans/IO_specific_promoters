@@ -25,6 +25,7 @@ def EqualizeHistogram(a, bins):
 #IMAGE ANALYSIS PLOT
 import matplotlib.backends.backend_pdf
 import seaborn as sns
+from PIL import Image
 
 pdf = matplotlib.backends.backend_pdf.PdfPages(r'C:\Users\dorga\Desktop\output.pdf')
 DIR__, DIRECTORY = load_directory_content__()
@@ -44,6 +45,11 @@ FULL_tDt_IO_IN_UP = []
 FULL_eGFP_IO_IN_UP = []
 FULL_tDt_IO_IN_DOWN = []
 FULL_eGFP_IO_IN_DOWN = []
+
+FULL_eGFP_SPREAD_IN = []
+FULL_eGFP_SPREAD_OUT = []
+FULL_tDt_SPREAD_IN = []
+FULL_tDt_SPREAD_OUT = []
 
 PixNumeGFP = []
 PixNumTdT = []
@@ -79,6 +85,7 @@ for PATH in DIR__:
             tdTomato = np.concatenate(np.array(SPLIT_IMAGE[0]))
             eGFP = np.concatenate(np.array(SPLIT_IMAGE[1]))
             
+            """
             I = EqualizeHistogram(eGFP, np.linspace(0, 255, 257))
             I_equalized = []
             for k in range(len(I)):
@@ -96,6 +103,7 @@ for PATH in DIR__:
                 else:
                     I_equalized.append(np.nan)
             tdTomato = I_equalized
+            """
             
             FULL_RAW_HIST_eGFP.append(eGFP)
             FULL_RAW_HIST_tDt.append(tdTomato)
@@ -107,12 +115,14 @@ for PATH in DIR__:
             
             
             IM_ARRAY = np.array(np.reshape(eGFP, (-1, w)))
+            Z_SCORE = np.nanmean(IM_ARRAY) + 3*np.nanstd(IM_ARRAY)
             ROI_crop = pd.read_csv(PATH.split('tif')[0]+'csv')
             eGFP_IO = []
             eGFP_IO_sup = []
             eGFP_IO_inf = []
             eGFP_OUT_sup = []
             eGFP_OUT_inf = []
+            
             for k in range(len(ROI_crop.X)):
                 eGFP_IO.append(IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]])
                 if ROI_crop.Y[k]<w*0.5:
@@ -123,7 +133,7 @@ for PATH in DIR__:
             
             eGFP_ARRAY_CONC = np.concatenate(IM_ARRAY)
             #Z_SCORE = np.nanmedian(np.concatenate(np.transpose(IM_ARRAY)[0:int(w/4)]))+3*np.std(np.concatenate(np.transpose(IM_ARRAY)[0:int(w/2)]))
-            Z_SCORE = 0#np.nanmean(IM_ARRAY) + 3*np.nanstd(IM_ARRAY)
+            
             eGFP_ARRAY_CONC = [num for num in eGFP_ARRAY_CONC if num>Z_SCORE]
             eGFP_IO = [num for num in eGFP_IO if num>Z_SCORE]
             
@@ -133,6 +143,7 @@ for PATH in DIR__:
             PixNumeGFP.append([len(eGFP_OUT_sup), len(eGFP_OUT_inf)])
             
             IM_ARRAY = np.array(np.reshape(tdTomato, (-1, w)))
+            Z_SCORE = np.nanmean(IM_ARRAY) + 3*np.nanstd(IM_ARRAY)
             ROI_crop = pd.read_csv(PATH.split('tif')[0]+'csv')
             tDTomato_IO = []
             tDTomato_IO_sup = []
@@ -149,7 +160,7 @@ for PATH in DIR__:
             
             tDt_CONC = np.concatenate(IM_ARRAY)
             #Z_SCORE = np.nanmedian(np.concatenate(np.transpose(IM_ARRAY)[0:int(w/4)]))+3*np.std(np.concatenate(np.transpose(IM_ARRAY)[0:int(w/2)]))
-            Z_SCORE = 0#np.nanmean(IM_ARRAY) + 3*np.nanstd(IM_ARRAY)
+            
             tDt_CONC = [num for num in tDt_CONC if num>Z_SCORE]
             tDTomato_IO = [num for num in tDTomato_IO if num>Z_SCORE] 
             
@@ -190,6 +201,13 @@ for PATH in DIR__:
             FULL_eGFP_IO_IN.append(np.nanmean(eGFP_IO))
             FULL_tDt_IO_OUT.append(np.nanmean(tDt_CONC))
             FULL_eGFP_IO_OUT.append(np.nanmean(eGFP_ARRAY_CONC))
+            
+            
+            FULL_eGFP_SPREAD_IN.append(len(eGFP_IO))
+            FULL_eGFP_SPREAD_OUT.append(len(eGFP_ARRAY_CONC))
+            FULL_tDt_SPREAD_IN.append(len(tDTomato_IO))
+            FULL_tDt_SPREAD_OUT.append(len(tDt_CONC))
+
             
             FULL_tDt_IO_IN_UP.append(np.nanmean(tDTomato_IO_sup))
             FULL_eGFP_IO_IN_UP.append(np.nanmean(eGFP_IO_sup))
@@ -994,7 +1012,7 @@ FULL_5HTr2b_10_CELLS_tDt = np.concatenate(FULL_5HTr2b_10_CELLS_tDt)
 FULL_5HTr2b_18_CELLS_tDt = np.concatenate(FULL_5HTr2b_18_CELLS_tDt)
 FULL_5HTr2b_CELLS_tDt = np.concatenate(FULL_5HTr2b_CELLS_tDt)
 """
-ax.scatter(np.concatenate(FULL_tDt_AREA), FULL_tDt_CELLS)
+ax.scatter(np.concatenate(FULL_tDt_AREA), np.concatenate(FULL_tDt_CELLS))
 
 
 ax2.scatter(np.concatenate(FULL_Igsf9_25_AREA), np.concatenate(FULL_Igsf9_25_DIVIDED))
