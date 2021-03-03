@@ -8,7 +8,7 @@ Created on Fri Aug 28 15:38:21 2020
 #IMAGE ANALYSIS PLOT
 import matplotlib.backends.backend_pdf
 
-pdf = matplotlib.backends.backend_pdf.PdfPages(r'C:\Users\dorga\Desktop\output.pdf')
+#pdf = matplotlib.backends.backend_pdf.PdfPages(r'C:\Users\dorga\Desktop\output.pdf')
 DIR__, DIRECTORY = load_directory_content__()
 
 HALF_LABEL_LIST = pd.read_csv(DIRECTORY+r'\20200828_HALF_IO_DILUTION_LABELS.csv')
@@ -87,6 +87,10 @@ for PATH in DIR__:
             ax4.imshow(np.reshape(SUB, (-1, 1024)), cmap=cm.magma,interpolation='hamming')
             
             
+<<<<<<< HEAD
+=======
+            
+>>>>>>> 842783b2a87bfe54750c991e2ea283dbe2e44b71
             
             IM_ARRAY = np.array(SPLIT_IMAGE[1])
             ROI_crop = pd.read_csv(PATH.split('tif')[0]+'csv')
@@ -102,10 +106,19 @@ for PATH in DIR__:
                 elif ROI_crop.Y[k]>w*0.6:
                     eGFP_IO_inf.append(IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]])
                 IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]] = 0
+<<<<<<< HEAD
             
             eGFP_ARRAY_CONC = np.concatenate(IM_ARRAY)
             #Z_SCORE = np.nanmedian(np.concatenate(np.transpose(IM_ARRAY)[0:int(w/4)]))+3*np.std(np.concatenate(np.transpose(IM_ARRAY)[0:int(w/2)]))
             Z_SCORE = 0#np.nanmean(IM_ARRAY) + 3*np.nanstd(IM_ARRAY)
+=======
+            eGFP_OUT_sup = IM_ARRAY[0:int(len(IM_ARRAY)*0.4)]
+            eGFP_OUT_inf =IM_ARRAY[int(len(IM_ARRAY)*0.6):]
+            
+            eGFP_ARRAY_CONC = np.concatenate(IM_ARRAY)
+            
+            Z_SCORE = np.nanmin(np.concatenate(np.transpose(IM_ARRAY[0:int(w/2)])))+3*np.std(np.concatenate(np.transpose(IM_ARRAY[0:int(w/2)])))
+>>>>>>> 842783b2a87bfe54750c991e2ea283dbe2e44b71
             eGFP_ARRAY_CONC = [num for num in eGFP_ARRAY_CONC if num>Z_SCORE]
             eGFP_IO = [num for num in eGFP_IO if num>Z_SCORE]
             
@@ -128,10 +141,17 @@ for PATH in DIR__:
                 elif ROI_crop.Y[k]>w*0.6:
                     tDTomato_IO_inf.append(IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]])
                 IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]] = 0
+<<<<<<< HEAD
             
             tDt_CONC = np.concatenate(IM_ARRAY)
             #Z_SCORE = np.nanmedian(np.concatenate(np.transpose(IM_ARRAY)[0:int(w/4)]))+3*np.std(np.concatenate(np.transpose(IM_ARRAY)[0:int(w/2)]))
             Z_SCORE = 0#np.nanmean(IM_ARRAY) + 3*np.nanstd(IM_ARRAY)
+=======
+
+            tDt_CONC = np.concatenate(IM_ARRAY)
+            
+            Z_SCORE = np.nanmin(np.concatenate(np.transpose(IM_ARRAY[0:int(w/2)])))+3*np.std(np.concatenate(np.transpose(IM_ARRAY[0:int(w/2)])))
+>>>>>>> 842783b2a87bfe54750c991e2ea283dbe2e44b71
             tDt_CONC = [num for num in tDt_CONC if num>Z_SCORE]
             tDTomato_IO = [num for num in tDTomato_IO if num>Z_SCORE] 
             
@@ -140,10 +160,17 @@ for PATH in DIR__:
 
             PixNumTdT.append([len(tDTomato_OUT_sup), len(tDTomato_OUT_inf)])
 
+            tDTomato_OUT_sup = IM_ARRAY[0:int(len(IM_ARRAY)*0.4)]
+            tDTomato_OUT_inf = IM_ARRAY[int(len(IM_ARRAY)*0.6):] 
+            
             SUB = np.multiply(SUB, 1)
             ax5.boxplot([tDt_CONC, eGFP_ARRAY_CONC, tDTomato_IO, eGFP_IO], showfliers=False)
             
+<<<<<<< HEAD
             promoter_name_ = PATH.split('\\')[-1].split('-')[0].split('_')[-1]
+=======
+            promoter_name_ = PATH.split('_')[-8]
+>>>>>>> 842783b2a87bfe54750c991e2ea283dbe2e44b71
             
             filename = PATH.split('\\')[-1].split('.tif')[0]
             
@@ -173,9 +200,13 @@ for PATH in DIR__:
             FULL_tDt_IO_OUT.append(np.nanmean(tDt_CONC))
             FULL_eGFP_IO_OUT.append(np.nanmean(eGFP_ARRAY_CONC))
             
+<<<<<<< HEAD
             FULL_tDt_IO_IN_UP.append(np.nanmean(tDTomato_sup))
+=======
+            FULL_tDt_IO_IN_UP.append(np.nanmean(tDTomato_IO_sup))
+>>>>>>> 842783b2a87bfe54750c991e2ea283dbe2e44b71
             FULL_eGFP_IO_IN_UP.append(np.nanmean(eGFP_IO_sup))
-            FULL_tDt_IO_IN_DOWN.append(np.nanmean(tDTomato_inf))
+            FULL_tDt_IO_IN_DOWN.append(np.nanmean(tDTomato_IO_inf))
             FULL_eGFP_IO_IN_DOWN.append(np.nanmean(eGFP_IO_inf))
             
             ax.set_title('CAG-tdTomato')
@@ -189,9 +220,10 @@ for PATH in DIR__:
             ax4.set_axis_off()
             plt.title(PATH)
             plt.tight_layout()
-            pdf.savefig(fig)
+            #pdf.savefig(fig)
         #except:
             #pass
+
 pdf.close()
 
 
