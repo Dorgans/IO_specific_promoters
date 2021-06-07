@@ -28,10 +28,13 @@ def EqualizeHistogram(a, bins):
 import matplotlib.backends.backend_pdf
 import seaborn as sns
 from PIL import Image
+import scipy as sp
 
-pdf = matplotlib.backends.backend_pdf.PdfPages(r'C:\Users\dorga\Desktop\output.pdf')
+Z_THRESHOLD = 3
+
+
+#pdf = matplotlib.backends.backend_pdf.PdfPages(r'C:\Users\KEVIN-DORGANS\Desktop\output.pdf')
 DIR__, DIRECTORY = load_directory_content__()
-
 HALF_LABEL_LIST = pd.read_csv(DIRECTORY+r'\20200828_HALF_IO_DILUTION_LABELS.csv')
 
 FULL_RAW_HIST_eGFP = []
@@ -43,6 +46,10 @@ FULL_tDt_IO_IN = []
 FULL_eGFP_IO_IN = []
 FULL_tDt_IO_OUT = []
 FULL_eGFP_IO_OUT = []
+FULL_tDt_SPREAD_IN = []
+FULL_eGFP_SPREAD_IN = []
+FULL_tDt_SPREAD_OUT = []
+FULL_eGFP_SPREAD_OUT = []
 FULL_tDt_IO_IN_UP = []
 FULL_eGFP_IO_IN_UP = []
 FULL_tDt_IO_IN_DOWN = []
@@ -58,6 +65,12 @@ tDt_HALF_IO = []
 tDt_HALF_IO_OUT = []
 eGFP_HALF_IO_DILUTION = []
 eGFP_HALF_IO_LABEL = []
+eGFP_SPREAD_IN = []
+eGFP_SPREAD_OUT = []
+tDt_SPREAD_IN = []
+tDt_SPREAD_OUT = []
+
+IO_PIXEL_SIZE = []
 
 for PATH in DIR__:   
     if ('.tif' in PATH)==True and ('KD' in PATH)==True:
@@ -75,18 +88,29 @@ for PATH in DIR__:
             ax4= plt.subplot(154)
             ax5= plt.subplot(155)
             
-            ax.imshow(np.array(SPLIT_IMAGE[0]), cmap=cm.Reds)
-            ax2.imshow(np.array(SPLIT_IMAGE[1]), cmap=cm.Greens)
-            ax3.imshow(np.array(SPLIT_IMAGE[2]), cmap=cm.Blues)
+            #ax.imshow(np.array(SPLIT_IMAGE[0]), cmap=cm.Reds)
+            #ax2.imshow(np.array(SPLIT_IMAGE[1]), cmap=cm.Greens)
+            #ax3.imshow(np.array(SPLIT_IMAGE[2]), cmap=cm.Blues)
             
             tdTomato = np.concatenate(np.array(SPLIT_IMAGE[0]))
             eGFP = np.concatenate(np.array(SPLIT_IMAGE[1]))
+            FULL_RAW_HIST_eGFP.append(eGFP)
+            FULL_RAW_HIST_tDt.append(tdTomato)
             
+            tdTomato = sp.stats.zscore(tdTomato)
+            eGFP = sp.stats.zscore(eGFP)
+            ax.imshow(np.reshape(eGFP, (-1, w)), cmap= cm.GnBu )
+            ax2.imshow(np.reshape(tdTomato, (-1, w)), cmap=cm.RdPu)
+            ax3.imshow(np.reshape(eGFP/ tdTomato , (-1, w)), cmap=cm.jet)
+
+
+            
+            """
             I = EqualizeHistogram(eGFP, np.linspace(0, 255, 257))
             I_equalized = []
             for k in range(len(I)):
                 if I[k]>240:
-                    I_equalized.append(I[k])
+                    I_equalized.append(eGFP[k])
                 else:
                     I_equalized.append(np.nan)
             eGFP = I_equalized
@@ -95,22 +119,16 @@ for PATH in DIR__:
             I_equalized = []
             for k in range(len(I)):
                 if I[k]>240:
-                    I_equalized.append(I[k])
+                    I_equalized.append(tdTomato[k])
                 else:
                     I_equalized.append(np.nan)
             tdTomato = I_equalized
-            
-            FULL_RAW_HIST_eGFP.append(eGFP)
-            FULL_RAW_HIST_tDt.append(tdTomato)
-            
-            SUB = np.subtract(np.nan_to_num(eGFP), np.nan_to_num(tdTomato))
-            
-            ax4.imshow(np.reshape(SUB, (-1, 1024)), cmap=cm.magma,interpolation='hamming')
-            
-            
+            """
             
             IM_ARRAY = np.array(np.reshape(eGFP, (-1, w)))
             ROI_crop = pd.read_csv(PATH.split('tif')[0]+'csv')
+            IO_PIXEL_SIZE.append(len(ROI_crop))
+            
             eGFP_IO = []
             eGFP_IO_sup = []
             eGFP_IO_inf = []
@@ -118,23 +136,15 @@ for PATH in DIR__:
             eGFP_OUT_inf = []
             for k in range(len(ROI_crop.X)):
                 eGFP_IO.append(IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]])
-                if ROI_crop.Y[k]<w*0.5:
+                if IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]]>Z_THRESHOLD:
                     eGFP_IO_sup.append(IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]])
-                elif ROI_crop.Y[k]>w*0.5:
-                    eGFP_IO_inf.append(IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]])
-                IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]] = 0
+                IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]] = np.nan
+            eGFP_IO_sup = eGFP_ARRAY_CONC = np.array(eGFP_IO_sup)
+            eGFP_OUT_sup = np.array(np.concatenate(IM_ARRAY))
+            eGFP_OUT_sup = eGFP_OUT_sup[~np.isnan(eGFP_OUT_sup)]
+            eGFP_OUT_sup = eGFP_OUT_sup[~(eGFP_OUT_sup<Z_THRESHOLD)]
             
-            eGFP_ARRAY_CONC = np.concatenate(IM_ARRAY)
-            #Z_SCORE = np.nanmedian(np.concatenate(np.transpose(IM_ARRAY)[0:int(w/4)]))+3*np.std(np.concatenate(np.transpose(IM_ARRAY)[0:int(w/2)]))
-            Z_SCORE = 0#np.nanmean(IM_ARRAY) + 3*np.nanstd(IM_ARRAY)
-            eGFP_ARRAY_CONC = [num for num in eGFP_ARRAY_CONC if num>Z_SCORE]
-            eGFP_IO = [num for num in eGFP_IO if num>Z_SCORE]
-            
-            eGFP_OUT_sup = [eGFP_ARRAY_CONC[k] for k in range(len(eGFP_ARRAY_CONC)) if eGFP_ARRAY_CONC[k]>Z_SCORE and  k<int(len(eGFP_ARRAY_CONC)*0.4)]
-            eGFP_OUT_inf = [eGFP_ARRAY_CONC[k] for k in range(len(eGFP_ARRAY_CONC)) if eGFP_ARRAY_CONC[k]>Z_SCORE and  k>int(len(eGFP_ARRAY_CONC)*0.6)]
-            
-            PixNumeGFP.append([len(eGFP_OUT_sup), len(eGFP_OUT_inf)])
-            
+
             IM_ARRAY = np.array(np.reshape(tdTomato, (-1, w)))
             ROI_crop = pd.read_csv(PATH.split('tif')[0]+'csv')
             tDTomato_IO = []
@@ -144,44 +154,33 @@ for PATH in DIR__:
             tDTomato_OUT_inf = []
             for k in range(len(ROI_crop.X)):
                 tDTomato_IO.append(IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]])
-                if ROI_crop.Y[k]<w*0.5:
+                if  IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]]>Z_THRESHOLD:
                     tDTomato_IO_sup.append(IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]])
-                elif ROI_crop.Y[k]>w*0.5:
-                    tDTomato_IO_inf.append(IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]])
-                IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]] = 0
-            
-            tDt_CONC = np.concatenate(IM_ARRAY)
-            #Z_SCORE = np.nanmedian(np.concatenate(np.transpose(IM_ARRAY)[0:int(w/4)]))+3*np.std(np.concatenate(np.transpose(IM_ARRAY)[0:int(w/2)]))
-            Z_SCORE = 0#np.nanmean(IM_ARRAY) + 3*np.nanstd(IM_ARRAY)
-            tDt_CONC = [num for num in tDt_CONC if num>Z_SCORE]
-            tDTomato_IO = [num for num in tDTomato_IO if num>Z_SCORE] 
-            
-            tDTomato_OUT_sup = [tDt_CONC[k] for k in range(len(tDt_CONC)) if tDt_CONC[k]>Z_SCORE and  k<int(len(tDt_CONC)*0.4)]
-            tDTomato_OUT_inf = [tDt_CONC[k] for k in range(len(tDt_CONC)) if tDt_CONC[k]>Z_SCORE and  k>int(len(tDt_CONC)*0.6)]
-            
-            PixNumTdT.append([len(tDTomato_OUT_sup), len(tDTomato_OUT_inf)])
-            
-            SUB = np.multiply(SUB, 1)
+                IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]] = np.nan
+            tDTomato_IO_sup = tDt_CONC = np.array(tDTomato_IO_sup)
+            tDTomato_OUT_sup = np.array(np.concatenate(IM_ARRAY))
+            tDTomato_OUT_sup = tDTomato_OUT_sup[~np.isnan(tDTomato_OUT_sup)]
+            tDTomato_OUT_sup = tDTomato_OUT_sup[~(tDTomato_OUT_sup<Z_THRESHOLD)]
+
             ax5.boxplot([tDt_CONC, eGFP_ARRAY_CONC, tDTomato_IO, eGFP_IO], showfliers=False)
             
             promoter_name_ = PATH.split('\\')[-1].split('-')[0].split('_')[-1]
-            
             filename = PATH.split('\\')[-1].split('.tif')[0]
             
             for k in range(len(HALF_LABEL_LIST.NAME.tolist())):
                 if HALF_LABEL_LIST.NAME[k] == filename:
                     position__ = HALF_LABEL_LIST.POSITION[k]
                     dilution__ = HALF_LABEL_LIST.DILUTION[k]
-                    if position__=='UP':
+                    if True:
                         eGFP_HALF_IO.append(np.nanmean(eGFP_IO_sup))
                         eGFP_HALF_IO_OUT.append(np.nanmean(eGFP_OUT_sup))
                         tDt_HALF_IO.append(np.nanmean(tDTomato_IO_sup))
                         tDt_HALF_IO_OUT.append(np.nanmean(tDTomato_OUT_sup))
-                    elif position__=='DOWN':
-                        eGFP_HALF_IO.append(np.nanmean(eGFP_IO_inf))
-                        eGFP_HALF_IO_OUT.append(np.nanmean(eGFP_OUT_inf))
-                        tDt_HALF_IO.append(np.nanmean(tDTomato_IO_inf))
-                        tDt_HALF_IO_OUT.append(np.nanmean(tDTomato_OUT_inf))
+                        eGFP_SPREAD_IN.append(len(eGFP_IO_sup))
+                        eGFP_SPREAD_OUT.append(len(eGFP_OUT_sup))
+                        tDt_SPREAD_IN.append(len(tDTomato_IO_sup))
+                        tDt_SPREAD_OUT.append(len(tDTomato_OUT_sup))
+
                     eGFP_HALF_IO_LABEL.append(promoter_name_)
                     eGFP_HALF_IO_DILUTION.append(dilution__)
             
@@ -196,11 +195,16 @@ for PATH in DIR__:
             
             FULL_tDt_IO_IN_UP.append(np.nanmean(tDTomato_IO_sup))
             FULL_eGFP_IO_IN_UP.append(np.nanmean(eGFP_IO_sup))
-            FULL_tDt_IO_IN_DOWN.append(np.nanmean(tDTomato_IO_inf))
-            FULL_eGFP_IO_IN_DOWN.append(np.nanmean(eGFP_IO_inf))
+            FULL_tDt_IO_IN_DOWN.append(np.nanmean(0))
+            FULL_eGFP_IO_IN_DOWN.append(np.nanmean(0))
             
-            ax.set_title('CAG-tdTomato')
-            ax2.set_title('p-eGFP')
+            FULL_tDt_SPREAD_IN.append(np.nanmean(tDt_SPREAD_IN))
+            FULL_eGFP_SPREAD_IN.append(np.nanmean(eGFP_SPREAD_IN))
+            FULL_tDt_SPREAD_OUT.append(np.nanmean(tDt_SPREAD_OUT))
+            FULL_eGFP_SPREAD_OUT.append(np.nanmean(eGFP_SPREAD_OUT))
+            
+            ax2.set_title('CAG-tdTomato')
+            ax.set_title('p-eGFP')
             ax3.set_title('DAPI')
             ax4.set_title('Difference image')
             ax5.set_title('Difference image')
@@ -210,12 +214,11 @@ for PATH in DIR__:
             ax4.set_axis_off()
             plt.title(PATH)
             plt.tight_layout()
-            pdf.savefig(fig)
+            #pdf.savefig(fig)
         #except:
             #pass
 
-
-pdf.close()
+#pdf.close()
 
 
 '''
@@ -745,17 +748,31 @@ ax10.set_xlabel('Dilution')
 ax9.set_ylabel('IO-spe./non-spe.')
 
 
+LIST = ['1.3kb',
+ '2.5kb',
+ 'Igsf9(3.7kb)',
+ '5HTr2b(1.0kb)',
+ '5HTr2b(1.8kb)',
+ '5HTr2b(3.0kb)',
+ '5HTr2b',
+ 'PDX1',
+ 'SUSD4',
+ 'AV9']
+
 pix_to_um_conversion_factor = 0.3613
 
 plt.figure()
+X_tDt = []
+Y_tDt = []
 for i in LIST:
     X = []
     Y = []
     
     for j in range(len(FULL_PROMOTER_NAMES)):    
         if i==FULL_PROMOTER_NAMES[j]:
-            X.append(np.divide(FULL_eGFP_SPREAD_IN[j], FULL_eGFP_SPREAD_OUT[j])/np.divide(FULL_tDt_SPREAD_IN[j], FULL_tDt_SPREAD_OUT[j]))
-            Y.append(np.divide(FULL_eGFP_IO_IN[j], FULL_eGFP_IO_OUT[j])/np.divide(FULL_tDt_IO_IN[j], FULL_tDt_IO_OUT[j]))
+            Y.append(np.divide(FULL_eGFP_SPREAD_IN[j] , FULL_eGFP_SPREAD_OUT[j]))
+            X.append(np.divide(FULL_eGFP_IO_IN[j], FULL_eGFP_IO_OUT[j]))
+        
     print(str(i)+' : '+str(len(X)))
     plt.scatter(np.nanmean(X), np.nanmean(Y))
     plt.text(np.nanmean(X), np.nanmean(Y), i)
@@ -765,23 +782,36 @@ for i in LIST:
     MEAN = np.nanmean(Y)
     SEM = sp.stats.sem(Y)
     plt.plot((np.nanmean(X),np.nanmean(X)), (MEAN+SEM, MEAN-SEM),  color='black')
-plt.xlabel('IO-SPECIFICITY')
-plt.ylabel('EXPRESSION LEVEL IN IO')
 
+for j in range(len(FULL_PROMOTER_NAMES)):
+    X_tDt.append(np.divide(FULL_tDt_SPREAD_IN[j] , FULL_tDt_SPREAD_OUT[j]))
+    Y_tDt.append(np.divide(FULL_tDt_IO_IN[j], FULL_tDt_IO_OUT[j]))
+plt.scatter(np.nanmean(X_tDt), np.nanmean(Y_tDt))
+plt.text(np.nanmean(X_tDt), np.nanmean(Y_tDt), 'AAV.PHP.S-CAG')
+MEAN = np.nanmean(X_tDt)
+SEM = sp.stats.sem(X_tDt)
+plt.plot((MEAN+SEM, MEAN-SEM), (np.nanmean(Y_tDt),np.nanmean(Y_tDt)), color='black')
+MEAN = np.nanmean(Y_tDt)
+SEM = sp.stats.sem(Y_tDt)
+plt.plot((np.nanmean(X_tDt),np.nanmean(X_tDt)), (MEAN+SEM, MEAN-SEM),  color='black')
+
+plt.ylabel('IO-SPECIFICITY')
+plt.xlabel('EXPRESSION LEVEL IN IO')
+
+#NORMED PLOT
 plt.figure()
 for i in LIST:
     X = []
     Y = []
-    X_tDt = []
-    Y_tDt = []
-    for j in range(len(FULL_PROMOTER_NAMES)):
+    
+    for j in range(len(FULL_PROMOTER_NAMES)):    
         if i==FULL_PROMOTER_NAMES[j]:
-            X.append(np.divide(FULL_eGFP_IO_IN[j], FULL_eGFP_IO_OUT[j]))
-            Y.append(np.divide(FULL_eGFP_SPREAD_IN[j], FULL_eGFP_SPREAD_OUT[j]))
-            
-            X_tDt.append(np.nanmean(np.divide(FULL_tDt_IO_IN[j], FULL_tDt_IO_OUT[j])))
-            Y_tDt.append(np.nanmean(np.divide(FULL_tDt_SPREAD_IN[j], FULL_tDt_SPREAD_OUT[j])))
+            Y.append(np.divide(FULL_eGFP_SPREAD_IN[j] , FULL_tDt_SPREAD_IN[j]))
+            X.append(np.divide(FULL_eGFP_IO_IN[j], FULL_tDt_IO_IN[j]))
+    
+    print(str(i)+' : '+str(len(X)))
     plt.scatter(np.nanmean(X), np.nanmean(Y))
+    plt.text(np.nanmean(X), np.nanmean(Y), i)
     MEAN = np.nanmean(X)
     SEM = sp.stats.sem(X)
     plt.plot((MEAN+SEM, MEAN-SEM), (np.nanmean(Y),np.nanmean(Y)), color='black')
@@ -789,18 +819,9 @@ for i in LIST:
     SEM = sp.stats.sem(Y)
     plt.plot((np.nanmean(X),np.nanmean(X)), (MEAN+SEM, MEAN-SEM),  color='black')
 
-    plt.text(np.nanmean(X), np.nanmean(Y), i)
-plt.scatter(np.nanmean(X_tDt), np.nanmean(Y_tDt))
 
-MEAN = np.nanmean(X_tDt)
-SEM = sp.stats.sem(X_tDt)
-plt.plot((MEAN+SEM, MEAN-SEM), (np.nanmean(Y_tDt),np.nanmean(Y_tDt)), color='black')
-MEAN = np.nanmean(Y_tDt)
-SEM = sp.stats.sem(Y_tDt)
-plt.plot((np.nanmean(X_tDt),np.nanmean(X_tDt)), (MEAN+SEM, MEAN-SEM),  color='black')
-plt.text(np.nanmean(X_tDt), np.nanmean(Y_tDt), i)
-plt.xlabel('IO-strength')
-plt.ylabel('IO-SPECIFICITY')
+plt.ylabel('NORMALIZED IO-SPECIFICITY')
+plt.xlabel('NORMALIZED EXPRESSION LEVEL IN IO')
 
 plt.figure()
 ax = plt.subplot(411)
@@ -992,3 +1013,53 @@ ax4.set_title('5HTr2b-eGFP')
 ax5.set_title('PDX1-eGFP')
 ax6.set_title('SUSD4-eGFP')
 """
+
+
+plt.figure(figsize=(12,3))
+ax = plt.subplot(141)
+ax2 = plt.subplot(142)
+ax3 = plt.subplot(143)
+ax4 = plt.subplot(144)
+
+for i in LIST:
+    X = []
+    Y = []
+    Z = []
+    for j in range(len(FULL_PROMOTER_NAMES)):    
+        if i==FULL_PROMOTER_NAMES[j]:
+            X.append(np.divide(FULL_eGFP_SPREAD_IN[j] , FULL_tDt_SPREAD_IN[j])/ np.nanmean(np.divide(FULL_eGFP_SPREAD_IN, FULL_tDt_SPREAD_IN)))
+            Y.append(np.divide(FULL_eGFP_SPREAD_IN[j] , FULL_tDt_SPREAD_IN[j]))
+            Z.append(np.divide(FULL_eGFP_SPREAD_OUT[j], FULL_tDt_SPREAD_OUT[j])/ np.nanmean(np.divide(FULL_eGFP_SPREAD_OUT, FULL_tDt_SPREAD_OUT)))
+    X = np.divide(np.array(np.multiply(np.subtract(X, 1), 10000), dtype=np.int), 100)
+    Y = np.divide(np.array(np.multiply(np.subtract(Y, 1), 10000), dtype=np.int), 100)
+    Z = np.divide(np.array(np.multiply(np.subtract(Z, 1), 10000), dtype=np.int), 100)
+    
+    print(str(i)+' : '+str(len(X))+" AVG: "+str(np.nanmean(X))+" +/- "+str(sp.stats.sem(X)))
+    MEAN = np.nanmean(X)
+    SEM = sp.stats.sem(X)
+    
+    ax.scatter(MEAN, i, color='black')
+    ax.plot((MEAN+SEM, MEAN-SEM), (i,i), color='black')
+    
+    MEAN = np.nanmean(Y)
+    SEM = sp.stats.sem(Y)
+    ax2.scatter(MEAN, i, color='black')
+    ax2.plot((MEAN+SEM, MEAN-SEM),(i,i), color='black')
+
+    MEAN = np.nanmean(Z)
+    SEM = sp.stats.sem(Z)
+    ax3.scatter(MEAN, i, color='black')
+    ax3.plot((MEAN+SEM, MEAN-SEM),(i,i), color='black')
+
+    ax4.scatter(np.nanmean(Z), np.nanmean(X), color='black')
+    ax4.text(np.nanmean(Z), np.nanmean(X), i)
+    MEAN = np.nanmean(Z)
+    SEM = sp.stats.sem(Z)
+    ax4.plot((MEAN+SEM, MEAN-SEM), (np.nanmean(X),np.nanmean(X)), color='black')
+    MEAN = np.nanmean(X)
+    SEM = sp.stats.sem(X)
+    ax4.plot((np.nanmean(Z),np.nanmean(Z)), (MEAN+SEM, MEAN-SEM),  color='black')
+
+    ax4.set_ylabel('NORMALIZED IO-SPECIFICITY')
+    ax4.set_xlabel('NORMALIZED EXPRESSION LEVEL IN IO')
+plt.tight_layout()
