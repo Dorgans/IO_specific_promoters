@@ -59,20 +59,28 @@ for l in range(len(SPIKE_LIST_MANUAL_CROP)):
                 MEAN = SPIKE_LIST_MANUAL_CROP[l]
                 SAMPLING_FREQUENCY = len(MEAN)/10
                 
-                FILT = sp.signal.medfilt(MEAN, 7)
-                PEAKS = sp.signal.find_peaks(FILT, distance=SAMPLING_FREQUENCY, width=SAMPLING_FREQUENCY/5, height=10)
+                FILT = [MEAN[i+3]/MEAN[i] for i in range(len(MEAN)-3)]
+                FILT = FILT - np.nanmean(FILT)
+                FILT_ = FILT
+                ZSCORE_FILT = sp.stats.zscore(FILT_)
+                PEAKS = sp.signal.find_peaks(ZSCORE_FILT, height=3, distance= SAMPLING_FREQUENCY/4)
+                FILT = MEAN
                 plt.figure()
                 plt.title(SPIKE_LIST_MANUAL_CROP_ID[l])
-                ax=plt.subplot(121)
-                ax2 = plt.subplot(122)
+                ax=plt.subplot(131)
+                ax2 = plt.subplot(132)
+                ax3 = plt.subplot(133)
+                
+                ax3.plot(sp.stats.zscore(FILT_))
+                
                 PEAK_LIST = []
                 ax.plot(MEAN)
                 for i in range(len(PEAKS[0])):
                     ax.scatter(PEAKS[0][i], FILT[PEAKS[0][i]], color='red')
                     try:
-                        if PEAKS[0][i]+SAMPLING_FREQUENCY*2<len(FILT) and PEAKS[0][i]-SAMPLING_FREQUENCY/2>0:
+                        if PEAKS[0][i]+SAMPLING_FREQUENCY*2.5<len(FILT) and PEAKS[0][i]-SAMPLING_FREQUENCY/2>0:
                             
-                            temp_ = FILT[int(PEAKS[0][i]- SAMPLING_FREQUENCY/2): int(PEAKS[0][i]+ SAMPLING_FREQUENCY*2)]
+                            temp_ = FILT[int(PEAKS[0][i]- SAMPLING_FREQUENCY/2): int(PEAKS[0][i]+ SAMPLING_FREQUENCY*2.5)]
                             PEAK_LIST.append(temp_)
                         elif int(PEAKS[0][i]- SAMPLING_FREQUENCY/1)<0:
                             missing = abs(int(PEAKS[0][i]- SAMPLING_FREQUENCY/2))
@@ -84,6 +92,7 @@ for l in range(len(SPIKE_LIST_MANUAL_CROP)):
                 SEM = sp.stats.sem(PEAK_LIST, axis=0)
                 ax2.plot(np.linspace(0, 10, len(AVG)), AVG)
                 ax2.fill_between(np.linspace(0, 10, len(AVG)), AVG+SEM, AVG-SEM, alpha=0.1)
+
                 try:
                     LED_INTENSITY_.append(np.int(PATH.split('LED')[-1].split('_')[0]))
                 except:
@@ -136,7 +145,7 @@ for i in range(len(LIST_)):
     ALL_SPIKES_PER_PROMOTER = []
     
     AVG = [ALL_SPIKES[j] for j in range(len(ALL_SPIKES)) if PROMOTER_NAME_[j] == LIST_[i]]
-    F_ZERO = [np.nanmin(AVG[j][5:15]) for j in range(len(AVG))]
+    F_ZERO = [np.nanmin(AVG[j][5:18]) for j in range(len(AVG))]
     DELTA_MAX_SPIKE = [np.nanmax(AVG[j][10:30])-F_ZERO[j] for j in range(len(AVG))]
     MEAN = np.nanmean(AVG, axis=0)
     SEM = sp.stats.sem(AVG, axis=0)
@@ -158,9 +167,9 @@ for i in range(len(LIST_)):
         LINE_FIT = line_func(np.linspace(0, len(AVG[k]), len(AVG[k])), *popt)
         MEAN = AVG[k]-LINE_FIT
         """
-        MEAN = MEAN-np.nanmin(MEAN[0:7])
+        MEAN = MEAN-np.nanmin(MEAN[0:20])
         if True:
-            plt.plot(X, MEAN, color='black', lw=0.1)
+            #plt.plot(X, MEAN, color='black', lw=0.1)
             ALL_F_ZERO.append(F_ZERO)
             ALL_DELTA_SPIKE.append(DELTA_MAX_SPIKE)
             ALL_SPIKES_PER_PROMOTER.append(MEAN)
@@ -180,7 +189,6 @@ plt.legend()
 plt.figure()
 
 ax = plt.subplot(121)
-plt.xscale('log')
 ax2 = plt.subplot(122)
 
 X_fit = []
@@ -210,7 +218,10 @@ ax.plot(x_, line_func(x_, *popt), color='black', lw=0.1)
 for i in range(len(ALL_DELTA_SPIKE_PROM)):
     ax2.scatter(np.nanmean(ALL_F_ZERO_PROM[i]), np.nanmean(np.divide(ALL_DELTA_SPIKE_PROM[i],ALL_F_ZERO_PROM[i])), label=LIST_[i])
 
-
+ax.set_xlabel('Somatic F-Zero (fW)')
+ax.set_ylabel('Calcium Spike Amplitude (fW)')
+ax2.set_ylabel('Calcium Spike DF/F0')
+ax2.set_xlabel('Somatic F-Zero (fW)')
 plt.legend()
 ax.set_xlim(0,)
 ax.set_ylim(0,)
