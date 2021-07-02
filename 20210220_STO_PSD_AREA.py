@@ -88,7 +88,7 @@ for i in range(len(PATHS)):
             
             
             for j in range(len(DIVIDED)):
-                if ZSCORE_INTENSITY[j]>2:
+                if ZSCORE_DIVIDED[j]>3:
                     DIVIDED_THRESHOLDED.append(DIVIDED[j])
                     ZSCORE_THRESHOLDED.append(ZSCORE_DIVIDED[j])
                     THRESHOLDED_ARRAY_ABOVE.append(IM_ARRAY_[j])
@@ -362,7 +362,7 @@ for i in range(len(LIST_)):
     Displayed_SEM_ = np.array(Displayed_SEM_)  
     ax1.plot([0, 10, 40, 80, 100],np.array( Displayed_))
     ax1.fill_between([0, 10, 40, 80, 100], Displayed_SEM_+Displayed_, Displayed_-Displayed_SEM_, alpha=0.1)
-    print(PromNum+str(np.nanmean(SignalThresholdPerProm )))
+
     ax1.text(100, Displayed_[-1], PromNum)
     
     Displayed_ = []
@@ -377,7 +377,7 @@ for i in range(len(LIST_)):
     Displayed_SEM_ = np.array(Displayed_SEM_) *0.0014665418 #bit to nW conversion ... fW.s/(1/SAMPLING in sec) Knowing Micam03WellDepth(e-), eV_to_W.s_conversion
     ax2.plot([0, 10, 40, 80, 100],np.array( Displayed_))
     ax2.fill_between([0, 10, 40, 80, 100], Displayed_SEM_+Displayed_, Displayed_-Displayed_SEM_, alpha=0.1)
-    print(PromNum+str(np.nanmean(SignalThresholdPerProm )))
+    #print(PromNum+str(np.nanmean(SignalThresholdPerProm )))
     ax2.text(100, Displayed_[-1], PromNum)
     
     Displayed_ = []
@@ -391,7 +391,7 @@ for i in range(len(LIST_)):
     Displayed_SEM_ = np.array(Displayed_SEM_) 
     ax3.plot([0, 10, 40, 80, 100],np.array( Displayed_))
     ax3.fill_between([0, 10, 40, 80, 100], Displayed_SEM_+Displayed_, Displayed_-Displayed_SEM_, alpha=0.1)
-    print(PromNum+str(np.nanmean(SignalThresholdPerProm )))
+    #print(PromNum+str(np.nanmean(SignalThresholdPerProm )))
     ax3.text(100, Displayed_[-1], PromNum)
     
     Displayed_ = []
@@ -405,7 +405,7 @@ for i in range(len(LIST_)):
     Displayed_SEM_ = np.array(Displayed_SEM_)
     ax4.plot([0, 10, 40, 80, 100],np.array( Displayed_))
     ax4.fill_between([0, 10, 40, 80, 100], Displayed_SEM_+Displayed_, Displayed_-Displayed_SEM_, alpha=0.1)
-    print(PromNum+str(np.nanmean(SignalThresholdPerProm )))
+    #print(PromNum+str(np.nanmean(SignalThresholdPerProm )))
     ax4.text(100, Displayed_[-1], PromNum)
 
     Displayed_ = []
@@ -419,7 +419,7 @@ for i in range(len(LIST_)):
     Displayed_SEM_ = np.array(Displayed_SEM_)*0.0014665418 #bit to nW conversion ... fW.s/(1/SAMPLING in sec) Knowing Micam03WellDepth(e-), eV_to_W.s_conversion
     ax5.plot([0, 10, 40, 80, 100],np.array( Displayed_))
     ax5.fill_between([0, 10, 40, 80, 100], Displayed_SEM_+Displayed_, Displayed_-Displayed_SEM_, alpha=0.1)
-    print(PromNum+str(np.nanmean(SignalThresholdPerProm )))
+    #print(PromNum+str(np.nanmean(SignalThresholdPerProm )))
     ax5.text(100, Displayed_[-1], PromNum)
     
     Displayed_ = []
@@ -436,7 +436,7 @@ for i in range(len(LIST_)):
     Displayed_SEM_ = np.array(Displayed_SEM_)*0.0014665418 #bit to nW conversion ... fW.s/(1/SAMPLING in sec) Knowing Micam03WellDepth(e-), eV_to_W.s_conversion
     ax6.plot([0, 10, 40, 80, 100],np.array( Displayed_))
     ax6.fill_between([0, 10, 40, 80, 100], Displayed_SEM_+Displayed_, Displayed_-Displayed_SEM_, alpha=0.1)
-    print(PromNum+str(np.nanmean(SignalThresholdPerProm )))
+    #print(PromNum+str(np.nanmean(SignalThresholdPerProm )))
     ax6.text(100, Displayed_[-1], PromNum)
     
     Displayed_ = []
@@ -450,7 +450,7 @@ for i in range(len(LIST_)):
     Displayed_SEM_ = np.array(Displayed_SEM_) 
     ax7.plot([0, 10, 40, 80, 100],np.array( Displayed_))
     ax7.fill_between([0, 10, 40, 80, 100], Displayed_SEM_+Displayed_, Displayed_-Displayed_SEM_, alpha=0.1)
-    print(PromNum+str(np.nanmean(SignalThresholdPerProm )))
+    #print(PromNum+str(np.nanmean(SignalThresholdPerProm )))
     ax7.text(100, Displayed_[-1], PromNum)
 
     Displayed_ = []
@@ -464,7 +464,7 @@ for i in range(len(LIST_)):
     Displayed_SEM_ = np.array(Displayed_SEM_)
     ax8.plot([0, 10, 40, 80, 100],np.array( Displayed_))
     ax8.fill_between([0, 10, 40, 80, 100], Displayed_SEM_+Displayed_, Displayed_-Displayed_SEM_, alpha=0.1)
-    print(PromNum+str(np.nanmean(SignalThresholdPerProm )))
+    #print(PromNum+str(np.nanmean(SignalThresholdPerProm )))
     ax8.text(100, Displayed_[-1], PromNum)
       
     

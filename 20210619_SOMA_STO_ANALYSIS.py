@@ -174,7 +174,7 @@ for j in range(len(ALL_STO_TRACES_HIGH_PASSED)):
     ALL = []
     offset =0
     
-    
+    freq=1
     DATA = ALL_STO_TRACES_HIGH_PASSED[j]
     SAMPLING_FREQUENCY = len(DATA)/10
     freq = ALL_STO_POWER_f_HIGH_PASSED[j]
