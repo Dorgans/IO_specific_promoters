@@ -43,11 +43,17 @@ def exp_func(x, a, b, c):
     return a * np.exp(b * x) + c
 
 ALL_STO_TRACES = []
+ALL_STO_TRACES_ID = []
 ALL_STO_POWER = []
 ALL_STO_POWER_f = []
 ALL_STO_CCORRCOEFF = []
 ALL_STO_POWER_PROMOTER = []
 ALL_FZERO = []
+
+LIST_ = []
+for i in range(len(STO_LIST_MANUAL_CROP_PROMOTER)):
+    if (STO_LIST_MANUAL_CROP_PROMOTER[i] in LIST_)==False:
+        LIST_.append(STO_LIST_MANUAL_CROP_PROMOTER[i])
 
 for i in range(len(STO_LIST_MANUAL_CROP)):
     
@@ -91,7 +97,8 @@ for i in range(len(STO_LIST_MANUAL_CROP)):
         ALL_STO_POWER_PROMOTER.append(STO_LIST_MANUAL_CROP_PROMOTER[i])
         ALL_FZERO.append(np.nanmedian(STO_LIST_MANUAL_CROP[i][0:int(SAMPLING_FREQUENCY)])*0.0014665418*SAMPLING_FREQUENCY)
         ALL_STO_TRACES.append(STO_LIST_MANUAL_CROP[i])
-        
+        ALL_STO_TRACES_ID.append(int(STO_LIST_MANUAL_CROP_ID[i].split('_00')[0].split('-')[-1]))
+
 X_fit = []
 Y_fit = []
 plt.figure()
@@ -123,10 +130,13 @@ ax.plot(x_, line_func(x_, *popt), color='black', lw=0.1)
 FULL_WRAPPED_WAVES = []
 FULL_WRAPPED_WAVES_PROMOTER = []
 ALL_STO_POWER_f_HIGH_PASSED = []
+ALL_STO_POWER_f_HIGH_PASSED_PSD = []
 ALL_STO_TRACES_HIGH_PASSED = []
 ALL_STO_POWER_PROMOTER_HIGH_PASSED = []
 ALL_FZERO_HIGH_PASSED = []
+ALL_STO_TRACES_HIGH_PASSED_ID = []
 
+freq=1
 for j in range(len(ALL_STO_TRACES)):
     ALL = []
     offset =0
@@ -158,10 +168,11 @@ for j in range(len(ALL_STO_TRACES)):
         ax2.scatter(MaxFreq, MaxPSD, color='blue')
         
         ALL_STO_POWER_f_HIGH_PASSED.append(MaxFreq)
+        ALL_STO_POWER_f_HIGH_PASSED_PSD.append(MaxPSD)
         ALL_STO_TRACES_HIGH_PASSED.append((np.array(ALL_STO_TRACES[j])*0.0014665418*SAMPLING_FREQUENCY).tolist())
         ALL_STO_POWER_PROMOTER_HIGH_PASSED.append(ALL_STO_POWER_PROMOTER[j]) 
         ALL_FZERO_HIGH_PASSED.append(ALL_FZERO[j])
-
+        ALL_STO_TRACES_HIGH_PASSED_ID.append(ALL_STO_TRACES_ID[j])
 
 #2 ISOLATE THE PHASES WITH EVEN SIGNAL CUT FROM ACCURATE PSD PEAK (FROM#1)
 #SHIFTS PHASE PEAKS TO MID-PHASE
@@ -203,7 +214,7 @@ for j in range(len(ALL_STO_TRACES_HIGH_PASSED)):
     X = np.linspace(0, 1, len(MEAN))
     
     if len(ALL)>0:
-        plt.figure(figsize=(2,2))
+        plt.figure(figsize=(2,2), num=ALL_STO_TRACES_HIGH_PASSED_ID[j])
         for l in range(len(ALL)):
             plt.plot(X, ALL[l], color='black', lw=0.1)
         plt.plot(X, MEAN)

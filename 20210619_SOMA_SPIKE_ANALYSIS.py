@@ -63,8 +63,12 @@ ALL_SPIKES = []
 ALL_PEAK_INDEXES = []
 ALL_SPIKE_TIMESTAMPS = []
 
-CalciumEventExtractionWindow = 2 #sec.
-CalciumEventResampling = 49 #frame number for all window. Gets slower if bigger.
+
+#FOR COMBINED ePhy/imaging EXPERIMENTS I USED [window=2sec, CaFluoResampling=49]
+#FOR COMBINED imaging-onlyu [window=4sec, CaFluoResampling=150]
+
+CalciumEventExtractionWindow = 4 #sec.
+CalciumEventResampling = 150 #frame number for all window. Gets slower if bigger.
 WindowTimeBeforePeak = 0.5 #Croping time before rise detection (s.)
 
 #Search for all constructions/conditions used and make ref# index
@@ -141,7 +145,7 @@ for l in range(len(SPIKE_LIST_MANUAL_CROP)):
                     PROMOTER_NAME_.append(SPIKE_LIST_MANUAL_CROP_PROMOTER[l])
                     FILE_NAME.append(SPIKE_LIST_MANUAL_CROP_ID[l])
                     ALL_PEAK_INDEXES.append(PEAK_LIST_INDEXES[k] )
-                    ALL_SPIKES.append(sp.signal.resample(PEAK_LIST[k], CalciumEventResampling)*0.0014665418*SAMPLING_FREQUENCY)
+                    ALL_SPIKES.append(sp.signal.resample(PEAK_LIST[k], CalciumEventResampling))
                     ALL_SPIKE_TIMESTAMPS.append(PEAK_TIMESTAMPS[k])
             except:
                 pass
@@ -189,7 +193,7 @@ plt.figure()
 for i in range(len(LIST_)):
     ax = plt.subplot(1, len(LIST_), i+1)
 
-    AVG = [ALL_SPIKES[j] for j in range(len(ALL_SPIKES)) if PROMOTER_NAME_[j] == LIST_[i]]
+    AVG = [ALL_SPIKES[j]*0.0014665418*SAMPLING_FREQUENCY for j in range(len(ALL_SPIKES)) if PROMOTER_NAME_[j] == LIST_[i]]
     PEAK_TIMES = [ALL_PEAK_INDEXES[j] for j in range(len(ALL_SPIKES)) if PROMOTER_NAME_[j] == LIST_[i]]
     SORTED_TIMESTAMPS = [ALL_SPIKE_TIMESTAMPS[j] for j in range(len(ALL_SPIKES)) if PROMOTER_NAME_[j] == LIST_[i]]
     
@@ -256,7 +260,7 @@ for i in range(len(LIST_)):
             if np.nanmean(AVG[k][int(1.8*CalciumEventResampling/CalciumEventExtractionWindow):int(2*CalciumEventResampling/CalciumEventExtractionWindow)])<(DELTA_MAX_SPIKE[k])/1.4:
             #if True:
                 ax.plot(X, AVG[k] , color='black', lw=0.1)
-                ax.scatter(RISE_TIME_SPIKE[k]+0.5, DELTA_MAX_SPIKE[k], color='red', alpha = (F_ZERO[k]/10000))
+                ax.scatter(RISE_TIME_SPIKE[k]+0.5, DELTA_MAX_SPIKE[k], color='red')
                 ALL_F_ZERO.append(F_ZERO[k])
                 ALL_DELTA_SPIKE.append(DELTA_MAX_SPIKE[k])
                 ALL_SPIKES_PER_PROMOTER.append(MEAN)
@@ -285,7 +289,7 @@ plt.xlabel('Time(s.)')
 plt.legend()
 
 
-plt.figure(figsize= (17, 3))
+plt.figure(figsize= (17, 3), num='Recap_LEDPWR')
 ax = plt.subplot(171)
 ax2 = plt.subplot(172)
 ax3 = plt.subplot(173)
@@ -329,7 +333,7 @@ try:
     x_ = np.linspace(0, np.nanmax(X_fit), CalciumEventResampling)
     ax3.plot(x_, log_func(x_, *popt), color='black', lw=0.1)
     
-    popt, pcov = curve_fit(line_func , [X_fit[i] for i in range(len(X_fit)) if X_fit[i] <1000], [Y_fit[i] for i in range(len(Y_fit)) if X_fit[i] <1000], maxfev=1000)
+    popt, pcov = curve_fit(line_func , [X_fit[i] for i in range(len(X_fit)) if X_fit[i] <500], [Y_fit[i] for i in range(len(Y_fit)) if X_fit[i] <500], maxfev=1000)
     x_ = np.linspace(0, np.nanmax(X_fit), CalciumEventResampling)
     ax3.plot(x_, line_func(x_, *popt), color='black', lw=0.1)
 except:
@@ -403,7 +407,7 @@ for i in range(len(LIST_)):
         ax3.scatter(ALL_RISE_TIME_SPIKE_PROM[j], np.divide(ALL_DELTA_SPIKE_PROM[j], ALL_F_ZERO_PROM[j]), s=5, color='black', alpha=0.1)
         ax.scatter(ALL_F_ZERO_PROM[j], ALL_RISE_TIME_SPIKE_PROM[j], s=5, color='black', alpha=0.1)
         ax4.scatter(np.nanmean(ALL_F_ZERO_PROM[j]), np.nanmean(np.divide(ALL_DELTA_SPIKE_PROM[j], ALL_F_ZERO_PROM[j])), color='black', alpha=0.3)
-        ax4.scatter(ALL_F_ZERO_PROM[j], np.divide(ALL_DELTA_SPIKE_PROM[j], ALL_F_ZERO_PROM[j]), s=5, color='black', alpha=0.1)
+        ax4.scatter(ALL_F_ZERO_PROM[j]/np.nanmax(ALL_F_ZERO_PROM[j]), np.divide(ALL_DELTA_SPIKE_PROM[j], ALL_F_ZERO_PROM[j]), s=5, color='black', alpha=0.1)
         ax5.scatter(np.nanmean(ALL_F_ZERO_PROM[j]), np.nanmean(ALL_WAVE_DECAY_FACTOR_PROM[j]), color='black', alpha=0.3)
         ax5.scatter(ALL_F_ZERO_PROM[j], ALL_WAVE_DECAY_FACTOR_PROM[j], s=5, color='black', alpha=0.1)
 
@@ -668,18 +672,18 @@ ALL_TEMP = []
 
 for i in range(len(LIST_)):
     temp_ = [ALL_FIXED_TISSUE_CELL_INTENSITIES[j] for j in range(len(ALL_FIXED_TISSUE_CELL_INTENSITIES_PROM)) if ALL_FIXED_TISSUE_CELL_INTENSITIES_PROM[j]==LIST_[i]]
-    temp_2 = [ALL_FIXED_TISSUE_CELL_INTENSITIES[j] for j in range(len(ALL_FIXED_TISSUE_CELL_INTENSITIES_PROM)) if ALL_FIXED_TISSUE_CELL_INTENSITIES_PROM[j]==LIST_[i]]
+    temp_2 = ALL_F_ZERO_PROM[i]
     ALL_TEMP.append(np.concatenate(temp_))
     
     ax.hist(np.concatenate(temp_), histtype='step', cumulative=True, density=True, bins=200)
     ax2.hist(temp_2, histtype='step', cumulative=True, density=True, bins=200)
     MEAN = np.nanmean(np.concatenate(temp_))
     SEM = sp.stats.sem(np.concatenate(temp_))
-    MEAN_2 = np.nanmean(np.concatenate(temp_2))
-    SEM_2 = sp.stats.sem(np.concatenate(temp_2))
+    MEAN_2 = np.nanmean(temp_2)
+    SEM_2 = sp.stats.sem(temp_2)
     ax3.plot((MEAN, MEAN), (MEAN_2+SEM_2, MEAN_2-SEM_2), color='black')
     ax3.plot((MEAN+SEM, MEAN-SEM), (MEAN_2, MEAN_2), color='black')
-    ax3.scatter(np.nanmean(np.concatenate(temp_)), np.nanmean(np.concatenate(temp_2)))
+    ax3.scatter(np.nanmean(np.concatenate(temp_)), MEAN_2)
 ax4.boxplot(ALL_TEMP, labels=LIST_, vert=False)
 ax.set_xlabel('Fixed GCamp6s Fluo')
 ax2.set_xlabel('InVitro FZero')
@@ -697,6 +701,9 @@ DETECTED_ePHY_SPIKES_WF = []
 DETECTED_ePHY_SPIKES_TIMESTAMP = []
 DETECTED_ePHY_SPIKE_TIMES = []
 ASSOCIATED_CALCIUM_TRACE = []
+
+PCA = sklearn.decomposition.PCA()
+KMEANS = sklearn.cluster.KMeans()
 
 resampling_ = 4000
 Fluo_resampling_ = 100
