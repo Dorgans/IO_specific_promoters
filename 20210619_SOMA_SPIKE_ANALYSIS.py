@@ -763,6 +763,8 @@ PCA_fit = PCA.fit_transform(TO_PCA)
 KMEAN_CLUSTER = KMEANS.fit_predict(PCA_fit)
 X_fit = []
 Y_fit = []
+AllFMAX_ePhy = []
+AllPCZero_ePhy = []
 
 plt.figure(figsize=(15, 2))
 
@@ -778,7 +780,7 @@ for i in range(np.nanmax(KMEAN_CLUSTER)):
     temp_2 = [PCA_fit[:,1][j] for j in range(len(KMEAN_CLUSTER)) if KMEAN_CLUSTER[j]==i]
     temp_3 = [TO_PCA[j] for j in range(len(KMEAN_CLUSTER)) if KMEAN_CLUSTER[j]==i]
     temp_4 = [ASSOCIATED_CALCIUM_TRACE[j]-np.nanmedian(ASSOCIATED_CALCIUM_TRACE[j][0:25]) for j in range(len(KMEAN_CLUSTER)) if KMEAN_CLUSTER[j]==i]
-    temp_5 = [np.nanmax(temp_4[j]) for j in range(len(temp_4))]
+    temp_5 = [np.nanmax(temp_4[j])/np.nanmedian(ASSOCIATED_CALCIUM_TRACE[j][0:int(Fluo_resampling_/8)]) for j in range(len(temp_4))]
     temp_7 = [temp_4[j].tolist().index(np.nanmax(temp_4[j]))*(1/Fluo_resampling_) for j in range(len(temp_4))]
     temp_8 = [np.nanmedian(ASSOCIATED_CALCIUM_TRACE[j][0:int(Fluo_resampling_/4)]) for j in range(len(temp_4))]
     temp_6 = []
@@ -789,6 +791,8 @@ for i in range(np.nanmax(KMEAN_CLUSTER)):
             temp_6.append(np.nan)
     X_fit.append([temp_5[k] for k in range(len(temp_5)) if temp_6[k]>0 and np.nanmedian(temp_3[k][20:25])>20])
     Y_fit.append([temp_6[k] for k in range(len(temp_5)) if temp_6[k]>0 and np.nanmedian(temp_3[k][20:25])>20])
+    AllFMAX_ePhy.append(temp_5)
+    AllPCZero_ePhy.append(temp_)
     
     #CLUSTERED SPIKE TRACES
     ax.scatter(temp_, temp_2)

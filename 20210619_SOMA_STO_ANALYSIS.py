@@ -101,9 +101,10 @@ for i in range(len(STO_LIST_MANUAL_CROP)):
 
 X_fit = []
 Y_fit = []
-plt.figure()
-ax = plt.subplot(121)
-ax2 = plt.subplot(122)
+plt.figure(figsize=(8,3))
+ax = plt.subplot(131)
+ax2 = plt.subplot(132)
+ax3 = plt.subplot(133)
 for i in range(len(LIST_)):
     temp_x = []
     temp_y = []
@@ -113,14 +114,20 @@ for i in range(len(LIST_)):
             temp_y.append(ALL_STO_POWER[j])
     X_fit.append(np.nanmean(temp_x))
     Y_fit.append(np.nanmean(temp_y))
-    ax.scatter(np.nanmean(temp_x), np.nanmean(temp_y))
+    ax.scatter(np.nanmean(temp_x), np.nanmean(temp_y), label=LIST_[i])
     ax2.scatter(np.nanmean(temp_x), np.nanmean(temp_y)/np.nanmean(temp_x))
-
+    ax3.hist(temp_y, histtype='step', cumulative=True, density=True, bins=200)
 popt, pcov = curve_fit(line_func , [X_fit[i] for i in range(len(X_fit)) if X_fit[i] <1000], [Y_fit[i] for i in range(len(Y_fit)) if X_fit[i] <1000], maxfev=1000)
 x_ = np.linspace(0, np.nanmax(X_fit), 100)
 ax.plot(x_, line_func(x_, *popt), color='black', lw=0.1)
-
-
+ax.set_xlabel('F_ZERO(fW)')
+ax.set_ylabel('STO Power(fW**2/Hz)')
+ax2.set_xlabel('F_ZERO(fW)')
+ax2.set_ylabel('STO Power(fW**2/Hz)/F_ZERO(fW)')
+ax.legend()
+ax3.set_xscale('log')
+ax3.set_xlabel('STO Power(fW**2/Hz)')
+plt.tight_layout()
 
 
 """
@@ -144,15 +151,16 @@ for j in range(len(ALL_STO_TRACES)):
     freq = ALL_STO_POWER_f[j]
     DATA = ALL_STO_TRACES[j]
     SAMPLING_FREQUENCY = len(DATA)/10
-
+    
+    X = np.linspace(0, len(DATA), len(DATA))
     try:
-        DATA = DATA - sp.signal.medfilt(DATA, int(SAMPLING_FREQUENCY))
+        popt, pcov = curve_fit(line_func , X, sp.signal.medfilt(DATA, int(SAMPLING_FREQUENCY)), maxfev=1000)
     except:
-        DATA = DATA - sp.signal.medfilt(DATA, int(SAMPLING_FREQUENCY)+1)
+        popt, pcov = curve_fit(line_func , X, sp.signal.medfilt(DATA, int(SAMPLING_FREQUENCY)+1), maxfev=1000)
+    DATA = DATA - line_func(X, *popt)
 
-    DATA = DATA.tolist()
-    f, Pxx_spec = signal.welch(DATA , SAMPLING_FREQUENCY , window='blackman', noverlap = SAMPLING_FREQUENCY/2 , nperseg=SAMPLING_FREQUENCY*7 , nfft=SAMPLING_FREQUENCY*10, average='mean')
-    plt.figure()
+    f, Pxx_spec = signal.welch(DATA , SAMPLING_FREQUENCY , window='blackman', noverlap = SAMPLING_FREQUENCY/2 , nperseg=SAMPLING_FREQUENCY*7 , nfft=SAMPLING_FREQUENCY*10, average='median', scaling='spectrum')
+    plt.figure(num = (str(ALL_STO_TRACES_ID[j])+' '+ALL_STO_POWER_PROMOTER[j]))
     ax = plt.subplot(121)
     ax2 = plt.subplot(122)
     ax.plot(DATA)
@@ -162,13 +170,16 @@ for j in range(len(ALL_STO_TRACES)):
     MaxPSD = np.nanmax(Pxx_spec_band_passed)
     MaxFreq = f_band_passed[Pxx_spec_band_passed.index(MaxPSD)]
     
-    if MaxPSD<1:
+    #MINIMAL VALUE OBSERVED FOR STO_PSD_IMAGING 3-13Hz if ePhy STO>1mV = 0.0006143693657678169
+    #MEAN+3*SD STO_PSD_IMAGING 3-13Hz if ePhy STO<1mV = 0.0017940229502497363:
+
+    if MaxPSD/ALL_FZERO[j]<0.0012017975487199199:
         ax2.scatter(MaxFreq, MaxPSD, color='red')
     else:
         ax2.scatter(MaxFreq, MaxPSD, color='blue')
         
         ALL_STO_POWER_f_HIGH_PASSED.append(MaxFreq)
-        ALL_STO_POWER_f_HIGH_PASSED_PSD.append(MaxPSD)
+        ALL_STO_POWER_f_HIGH_PASSED_PSD.append(MaxPSD*0.0014665418*SAMPLING_FREQUENCY)
         ALL_STO_TRACES_HIGH_PASSED.append((np.array(ALL_STO_TRACES[j])*0.0014665418*SAMPLING_FREQUENCY).tolist())
         ALL_STO_POWER_PROMOTER_HIGH_PASSED.append(ALL_STO_POWER_PROMOTER[j]) 
         ALL_FZERO_HIGH_PASSED.append(ALL_FZERO[j])
@@ -269,4 +280,111 @@ for j in range(len(LIST_)):
     ax2.set_ylabel('DeltaF (fW)')
 plt.tight_layout()
 
+"""
+
+
+"""
+#SOME SCRIPT THAT SUPERPOSES STO from IMAGING AND ePHY and Specgram
+#IT WORKS WITH "SPIKE-SCRIPT"
+plt.figure()
+
+imaging_traces = np.concatenate(ALL_SPIKE_WAVES_PROM)
+PSD_imaging = []
+PSD_ePhy = []
+ImagingFZERO = []
+
+for i in range(len(SPIKE_LIST_MANUAL_CROP)):
+    imaging_timestamp = int(SPIKE_LIST_MANUAL_CROP_ID[i].split('_00')[0].split('-')[-1])
+    imaging_trace = SPIKE_LIST_MANUAL_CROP[i]
+    imaging_length = SPIKE_LIST_MANUAL_CROP_LEN[i]
+    imaging_sampling = imaging_length/len(imaging_trace)
+    imaging_trace = np.array(imaging_trace)
+    
+    
+    ePhy_trace_id = ALL_TIMESTAMPS_ePhy.index(imaging_timestamp)
+    ePhy_sampling = ALL_sampling_freqs_ephy[ePhy_trace_id]
+    ePhy_trace = ALL_ePhy_SIGNALS[ePhy_trace_id]
+    imaging_delay = ALL_MicamDelay[ePhy_trace_id] + 1
+    SAMPLING_FREQUENCY = int(1/ePhy_sampling)
+    
+    ax.plot(ePhy_trace)
+    ax = plt.subplot(131)
+    ax2 = plt.subplot(132)
+    ax3 = plt.subplot(133)
+    
+    X = np.linspace(0, imaging_length, len(imaging_trace))
+    MEAN = imaging_trace - np.nanmedian(imaging_trace)
+    MEAN = MEAN
+    #ax.plot(X,  MEAN, alpha=0.1)
+    
+    try:
+        popt, pcov = curve_fit(line_func , X, sp.signal.medfilt(MEAN, int(imaging_sampling)), maxfev=1000)
+    except:
+        popt, pcov = curve_fit(line_func , X, sp.signal.medfilt(MEAN, int(imaging_sampling)+1), maxfev=1000)
+    #ax.plot(X, line_func(X, *popt), color='black', lw=0.1)
+    MEAN = MEAN - line_func(X, *popt)
+    
+    MEAN_IMAGING = MEAN
+    #ax.plot(X,  MEAN, color='black')
+    
+    MEAN = ePhy_trace - np.nanmedian(ePhy_trace)
+    MEAN = MEAN
+    MEAN = MEAN[int(imaging_delay/ePhy_sampling): int((imaging_length+imaging_delay)/ePhy_sampling)]
+    X = np.linspace(0, imaging_length , len(MEAN))
+    #ax.plot(X,  MEAN)
+    
+    PEAKS = sp.signal.find_peaks(MEAN, height=0.01, distance=int((1/ePhy_sampling)/1))[0]
+    
+    f, Pxx_spec = signal.welch(MEAN , SAMPLING_FREQUENCY , window='bartlett', noverlap = SAMPLING_FREQUENCY/4, nperseg=SAMPLING_FREQUENCY , nfft=SAMPLING_FREQUENCY/0.5, average='mean', scaling='spectrum')
+    MaxPwr = np.nanmax([Pxx_spec[j] for j in range(len(Pxx_spec)) if f[j]>=3.5])
+    MaxPwr_f = f[Pxx_spec.tolist().index(MaxPwr)]
+    MaxePhySTO = Pxx_spec.tolist().index(MaxPwr)
+    ax.plot(f, Pxx_spec)
+    ax3.bar(0, MaxPwr)
+    f, Pxx_spec = signal.welch(MEAN_IMAGING, int(1/imaging_sampling) , window='blackman', noverlap = int(1/imaging_sampling)/4 , nperseg=int(1/imaging_sampling)/1 , nfft=int(1/imaging_sampling)/0.5, average='median', scaling='spectrum')
+    ax2.plot(f, Pxx_spec)
+    
+    MaxPwr_IMAGING = np.nanmax([Pxx_spec[j] for j in range(len(Pxx_spec)) if 13>f[j]>3.5])
+    MaxPwr_f_IMAGING = f[Pxx_spec.tolist().index(MaxPwr_IMAGING)]
+    ax3.bar(1, MaxPwr_IMAGING*0.0014665418*(1/imaging_sampling))
+    
+    if 3.6 < MaxPwr_f_IMAGING < 13:
+        PSD_ePhy.append(MaxPwr)
+        PSD_imaging.append(MaxPwr_IMAGING*0.0014665418*(1/imaging_sampling))
+        ImagingFZERO.append(np.nanmedian(SPIKE_LIST_MANUAL_CROP[i])*0.0014665418*(1/imaging_sampling))
+        
+plt.figure()
+ax = plt.subplot(121)
+ax2 = plt.subplot(122)
+ax.scatter(PSD_ePhy, np.divide(PSD_imaging, ImagingFZERO))
+DIV = np.divide(PSD_imaging, ImagingFZERO)
+
+SUP = [DIV[i] for i in range(len(DIV)) if PSD_ePhy[i]>1]
+INF = [DIV[i] for i in range(len(DIV)) if PSD_ePhy[i]<1]
+ax.set_xscale('log')
+ax.set_xlabel('ePhy-STO(mV**2 RMS)')
+ax.set_ylabel('GCamp6s-STO (DFF)')
+
+ax2.boxplot([SUP, INF], labels=['ePhy-STO>1mV','ePhy-STO<1mV'])
+ax2.set_ylabel('GCamp6s-STO DFF')
+
+"""
+
+
+"""
+#STO DFF vs SPIKE DFF
+
+plt.figure(figsize=(4,4))
+for i in range(len(LIST_)):
+    MEAN = np.nanmean(np.divide(ALL_DELTA_SPIKE_PROM[i],ALL_F_ZERO_PROM[i]))
+    SEM = sp.stats.sem(np.divide(ALL_DELTA_SPIKE_PROM[i],ALL_F_ZERO_PROM[i]))
+    MEAN_2 = np.nanmean(np.divide(Y_fit[i], X_fit[i]))
+    SEM_2 = sp.stats.sem(np.divide(Y_fit[i], X_fit[i]))
+    plt.scatter(MEAN_2, MEAN, label=LIST_[i])
+    plt.plot((MEAN_2, MEAN_2), (MEAN + SEM, MEAN-SEM), color='black')
+    plt.plot((MEAN_2+SEM_2, MEAN_2-SEM_2), (MEAN, MEAN), color='black')
+plt.legend()
+plt.xlabel('STO DFF')
+plt.ylabel('SPIKE_DFF')
+plt.tight_layout()
 """
