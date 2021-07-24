@@ -170,10 +170,10 @@ for j in range(len(ALL_STO_TRACES)):
     MaxPSD = np.nanmax(Pxx_spec_band_passed)
     MaxFreq = f_band_passed[Pxx_spec_band_passed.index(MaxPSD)]
     
-    #MINIMAL VALUE OBSERVED FOR STO_PSD_IMAGING 3-13Hz if ePhy STO>1mV = 0.0006143693657678169
-    #MEAN+3*SD STO_PSD_IMAGING 3-13Hz if ePhy STO<1mV = 0.0017940229502497363:
+    #MINIMAL VALUE OBSERVED FOR STO_PSD_IMAGING 3-13Hz if ePhy STO>1mV = 0.00024193322287634385
+    #MEAN+3*SD STO_PSD_IMAGING 3-13Hz if ePhy STO<1mV =0.0012017975487199199:
 
-    if MaxPSD/ALL_FZERO[j]<0.0012017975487199199:
+    if (MaxPSD*0.0014665418*SAMPLING_FREQUENCY)/ALL_FZERO[j]< 0.00024193322287634385:
         ax2.scatter(MaxFreq, MaxPSD, color='red')
     else:
         ax2.scatter(MaxFreq, MaxPSD, color='blue')

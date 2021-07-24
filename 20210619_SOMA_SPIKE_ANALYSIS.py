@@ -49,8 +49,8 @@ except:
     ALL_MicamDelay = []
 """
 
-def log_func(x, a, b, c):
-    return a * np.log2(b * x) + c
+def log_func(x, a, b):
+    return a * np.log2(x + b)
 
 def line_func(x, a, b):
     return a * x + b
@@ -93,7 +93,7 @@ for l in range(len(SPIKE_LIST_MANUAL_CROP)):
                     
                 SAMPLING_FREQUENCY = len(MEAN)/FluoRecDuration
                 
-                FILT = [np.nanmedian(MEAN[i+1:i+3])-MEAN[i] for i in range(len(MEAN)-4)]
+                FILT = [np.nanmedian(MEAN[i+1:i+4])-MEAN[i] for i in range(len(MEAN)-4)]
                 FILT = FILT - np.nanmean(FILT)
                 FILT_ = FILT
                 ZSCORE_FILT = sp.stats.zscore(FILT_)
@@ -700,6 +700,9 @@ ax4.set_xlabel('log')
 DETECTED_ePHY_SPIKES_WF = []
 DETECTED_ePHY_SPIKES_TIMESTAMP = []
 DETECTED_ePHY_SPIKE_TIMES = []
+DETECTED_ePHY_SPIKES_CONSTRUCT = []
+DETECTED_ePHY_SPIKES_DATES = []
+DETECTED_ePHY_SPIKES_CELL = []
 ASSOCIATED_CALCIUM_TRACE = []
 
 PCA = sklearn.decomposition.PCA()
@@ -742,13 +745,12 @@ for i in range(len(ALL_ePhy_SIGNALS)):
             ASSOCIATED_CALCIUM_TRACE.append(temp)
             DETECTED_ePHY_SPIKES_WF.append(temp_)
             DETECTED_ePHY_SPIKES_TIMESTAMP.append(ALL_TIMESTAMPS_ePhy[i])
-            
             DETECTED_ePHY_SPIKE_TIMES.append(SpikePeakIndex[j])
-
-
-
+            DETECTED_ePHY_SPIKES_CONSTRUCT.append(FullFluoID.split('_')[0])
+            DETECTED_ePHY_SPIKES_DATES.append('-'.join(FullFluoID.split('202')[1].split('-')[1:3]))
+            DETECTED_ePHY_SPIKES_CELL.append(DETECTED_ePHY_SPIKES_DATES[-1]+'S'+FullFluoID.split('S')[1].split('_')[0])
+            
 plt.figure()
-
 TO_PCA = []
 for i in range(len(DETECTED_ePHY_SPIKE_TIMES)):
     
@@ -756,11 +758,10 @@ for i in range(len(DETECTED_ePHY_SPIKE_TIMES)):
     
     TO_PCA.append(temp_)
     plt.plot(temp_, lw=0.1, color='black')
-
-
-
 PCA_fit = PCA.fit_transform(TO_PCA)
 KMEAN_CLUSTER = KMEANS.fit_predict(PCA_fit)
+SORTED_CLUSTERS = []
+
 X_fit = []
 Y_fit = []
 AllFMAX_ePhy = []
@@ -784,15 +785,20 @@ for i in range(np.nanmax(KMEAN_CLUSTER)):
     temp_7 = [temp_4[j].tolist().index(np.nanmax(temp_4[j]))*(1/Fluo_resampling_) for j in range(len(temp_4))]
     temp_8 = [np.nanmedian(ASSOCIATED_CALCIUM_TRACE[j][0:int(Fluo_resampling_/4)]) for j in range(len(temp_4))]
     temp_6 = []
+
     for j in range(len(temp_4)):
         try:
             temp_6.append([k*(0.050/200) for k in range(20, len(temp_3[j])) if temp_3[j][k]>5][-1])
         except:
             temp_6.append(np.nan)
+            
     X_fit.append([temp_5[k] for k in range(len(temp_5)) if temp_6[k]>0 and np.nanmedian(temp_3[k][20:25])>20])
     Y_fit.append([temp_6[k] for k in range(len(temp_5)) if temp_6[k]>0 and np.nanmedian(temp_3[k][20:25])>20])
     AllFMAX_ePhy.append(temp_5)
     AllPCZero_ePhy.append(temp_)
+    
+    temp_9 = [DETECTED_ePHY_SPIKES_CELL[j]  for j in range(len(KMEAN_CLUSTER)) if KMEAN_CLUSTER[j]==i]
+    SORTED_CLUSTERS.append(temp_9)
     
     #CLUSTERED SPIKE TRACES
     ax.scatter(temp_, temp_2)
@@ -816,6 +822,105 @@ for i in range(np.nanmax(KMEAN_CLUSTER)):
     ax7.scatter(temp_8, temp_6 ,color='black', alpha=0.1)
     ax7.scatter(np.nanmean(temp_8), np.nanmean(temp_6))
     print(i, 'CaSpkAmp:',np.nanmean(temp_4), '+/-', sp.stats.sem(temp_4), 'ePhyHW:',np.nanmean(temp_6), '+/-', sp.stats.sem(temp_6))
+
+X_fit = np.concatenate(X_fit)
+Y_fit = np.concatenate(Y_fit)
+
+popt, pcov = curve_fit(log_func , X_fit, Y_fit, maxfev=1000)
+x_ = np.linspace(-20, np.nanmax(X_fit), len(X_fit))
+ax6.plot(x_, log_func(x_, *popt), color='black', lw=0.1)
+
+PCA_model = PCA.fit(TO_PCA)
+ax4.plot(PCA_model.components_[0])
+ax4.plot(PCA_model.components_[1])
+ax4.plot(PCA_model.components_[2])
+
+
+ax.set_xlabel('PC1')
+ax.set_ylabel('PC2')
+ax2.set_xlabel('Time(s)')
+ax2.set_ylabel('Mb.potential (mW)')
+ax3.set_xlabel('Time(s)')
+ax3.set_ylabel('GCamp6s fluo. (fW)')
+ax4.set_xlabel('Time(s)')
+ax4.set_ylabel('Principal components')
+ax5.set_xlabel('Ca.Transient RT(ms)')
+ax5.set_ylabel('Spike half-width (ms)')
+ax6.set_xlabel('Ca.Transient amp. (fW)')
+ax6.set_ylabel('Spike half-width (ms)')
+ax7.set_xlabel('Ca.FZero (fW)')
+ax7.set_ylabel('Spike half-width (ms)')
+plt.tight_layout()
+"""
+
+
+
+
+
+
+"""
+#SOME SCRIPT MODIFICATIONS FROM ANOTHER SCRIPT ABOVE WERE USED FOR CALCULATIONS BUT NOT FOR FIGURES. JUST HERE TO EXPLORE AGAIN
+X_fit = []
+Y_fit = []
+AllFMAX_ePhy = []
+AllPCZero_ePhy = []
+
+plt.figure(figsize=(15, 2))
+
+ax = plt.subplot(171)
+ax2 = plt.subplot(172)
+ax3 = plt.subplot(173)
+ax4 = plt.subplot(174)
+ax5 = plt.subplot(175)
+ax6 = plt.subplot(176)
+ax7 = plt.subplot(177)
+for i in range(np.nanmax(KMEAN_CLUSTER)):
+    temp_ = [PCA_fit[:,0][j] for j in range(len(KMEAN_CLUSTER)) if KMEAN_CLUSTER[j]==i]
+    temp_2 = [PCA_fit[:,1][j] for j in range(len(KMEAN_CLUSTER)) if KMEAN_CLUSTER[j]==i]
+    temp_3 = [TO_PCA[j] for j in range(len(KMEAN_CLUSTER)) if KMEAN_CLUSTER[j]==i]
+    temp_4 = [ASSOCIATED_CALCIUM_TRACE[j]-np.nanmedian(ASSOCIATED_CALCIUM_TRACE[j][0:25]) for j in range(len(KMEAN_CLUSTER)) if KMEAN_CLUSTER[j]==i]
+    temp_5 = [np.nanmax(temp_4[j])/np.nanmedian(ASSOCIATED_CALCIUM_TRACE[j][0:int(Fluo_resampling_/8)]) for j in range(len(temp_4))]
+    temp_7 = [temp_4[j].tolist().index(np.nanmax(temp_4[j]))*(1/Fluo_resampling_) for j in range(len(temp_4))]
+    temp_8 = [np.nanmedian(ASSOCIATED_CALCIUM_TRACE[j][0:int(Fluo_resampling_/4)]) for j in range(len(temp_4))]
+    temp_6 = []
+    
+    for j in range(len(temp_4)):
+        try:
+            temp_6.append(np.float([k*(0.050/200) for k in range(20, len(temp_3[j])) if temp_3[j][k]>18][-1])-0.3)
+        except:
+            temp_6.append(np.nan)
+    
+    X_fit.append([temp_5[k] for k in range(len(temp_5)) if temp_6[k]>0 and np.nanmedian(temp_3[k][20:25])>20])
+    Y_fit.append([temp_6[k] for k in range(len(temp_5)) if temp_6[k]>0 and np.nanmedian(temp_3[k][20:25])>20])
+    AllFMAX_ePhy.append(temp_5)
+    AllPCZero_ePhy.append(temp_)
+    
+    temp_9 = [DETECTED_ePHY_SPIKES_CELL[j]  for j in range(len(KMEAN_CLUSTER)) if KMEAN_CLUSTER[j]==i]
+    SORTED_CLUSTERS.append(temp_9)
+    
+    #CLUSTERED SPIKE TRACES
+    ax.scatter(temp_, temp_2)
+    MEAN = np.nanmean(temp_3, axis=0)
+    SEM = sp.stats.sem(temp_3, axis=0)
+    X = np.linspace(0, len(MEAN)/ resampling_, len(MEAN))
+    ax2.plot(X, MEAN)
+    ax2.fill_between(X, MEAN+SEM, MEAN-SEM, alpha=0.1)
+    
+    #CORRESPONDING CALCIUM TRACES
+    SEM = sp.stats.sem(temp_4, axis=0)
+    MEAN = np.nanmean(temp_4, axis=0)
+    X = np.linspace(0, len(MEAN)/ Fluo_resampling_, len(MEAN))
+    ax3.plot(X, MEAN)
+    ax3.fill_between(X, MEAN+SEM, MEAN-SEM, alpha=0.1)    
+    
+    ax5.scatter(temp_7, temp_6 ,color='black', alpha=0.1)
+    ax5.scatter(np.nanmean(temp_7), np.nanmean(temp_6))
+    ax6.scatter(temp_5, temp_6 ,color='black', alpha=0.1)
+    ax6.scatter(np.nanmean(temp_5), np.nanmean(temp_6))
+    ax7.scatter(temp_8, temp_6 ,color='black', alpha=0.1)
+    ax7.scatter(np.nanmean(temp_8), np.nanmean(temp_6))
+    print(i, 'CaSpkAmp:',np.nanmean(temp_4), '+/-', sp.stats.sem(temp_4), 'ePhyHW:',np.nanmean(temp_6), '+/-', sp.stats.sem(temp_6))
+
 
 X_fit = np.concatenate(X_fit)
 Y_fit = np.concatenate(Y_fit)
