@@ -4,9 +4,9 @@
 <img src="https://user-images.githubusercontent.com/46438160/126939760-7795f9b8-161c-474d-a118-ddb932a70ef6.png" alt="IOn IHC (MAP2, Alpha-tub, NeuN)" width="300" height="300">
 
  
- -.py code sequences can be launched individually and require the datasets uploaded in DATA folder. Each code sequence calculates and plots data required for all figures. 
- -Code sequences may not be sorted by figure number and yet as this may change in the future.
- -DATA folder does not contain raw data but extracted data from raw (such as average soma R.O.I intensity, timeseries average for soma pixels ..). The raw data themselves will be uploaded in image repository.
+  <br> - .py code sequences can be launched individually and require the datasets uploaded in DATA folder. Each code sequence calculates and plots data required for all figures. 
+ <br> - Code sequences may not be sorted by figure number and yet as this may change in the future.
+ <br> - DATA folder does not contain raw data but extracted data from raw (such as average soma R.O.I intensity, timeseries average for soma pixels ..). The raw data themselves will be uploaded in image repository.
  
 
 #### 20210726
