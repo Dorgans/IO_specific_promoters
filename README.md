@@ -8,12 +8,18 @@
 <img src="https://user-images.githubusercontent.com/46438160/126941800-4bfd64ff-befc-4868-ab29-530474372caf.png" alt="AAV.PHP.eB, dual-AAV, GCamp7" height="200">
 
 
-- #### Datasets are available for analysis
-###### code sequences can be launched individually and require the corresponding datasets uploaded in the repository
-###### each chunk of code (1) imports (2) calculates (3) plots data
-###### some code is just tentative code but I kept it. I will clear everything un-used when project is closed.
-###### DATA folder does not contain raw data but extracted data from raw (such as average soma R.O.I intensity, timeseries average for soma pixels ..)
-###### I will link here the RAW data repositor(ies) if there are
+
+##### Datasets are available for analysis
+
+<a href='https://github.com/Dorgans/IO_specific_promoters/blob/master/20200304_ANATOMY_HighMagnificationAnalysis.py'>60x Anatomy (Figure2)<a>
+<a href='https://github.com/Dorgans/IO_specific_promoters/blob/master/20210328_IHC_NeuroAstroIdentification.py'> IHC Neuron/Astro identification (Figure1)</a>
+<a href='https://github.com/Dorgans/IO_specific_promoters/blob/master/20210619_SOMA_SPIKE_ANALYSIS.py'>Spike-related analysis (Figure6,7,8)</a>
+    rem
+    code sequences can be launched individually and require the corresponding datasets uploaded in the repository
+    each chunk of code (1) imports (2) calculates (3) plots data
+    some code is just tentative code but I kept it. I will clear everything un-used when project is closed.
+    DATA folder does not contain raw data but extracted data from raw (such as average soma R.O.I intensity, timeseries average for soma pixels ..)
+    will link here the RAW data repositor(ies) if there are
 
 <br/>
 <br/>
