@@ -12,8 +12,12 @@
 ##### Datasets are available for analysis
 
 <a href='https://github.com/Dorgans/IO_specific_promoters/blob/master/20200304_ANATOMY_HighMagnificationAnalysis.py'>60x Anatomy (Figure2)<a>
+ <br/>
 <a href='https://github.com/Dorgans/IO_specific_promoters/blob/master/20210328_IHC_NeuroAstroIdentification.py'> IHC Neuron/Astro identification (Figure1)</a>
+ <br/>
 <a href='https://github.com/Dorgans/IO_specific_promoters/blob/master/20210619_SOMA_SPIKE_ANALYSIS.py'>Spike-related analysis (Figure6,7,8)</a>
+ <br/>
+ 
     rem
     code sequences can be launched individually and require the corresponding datasets uploaded in the repository
     each chunk of code (1) imports (2) calculates (3) plots data
