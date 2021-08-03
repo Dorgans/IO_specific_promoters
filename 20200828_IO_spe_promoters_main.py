@@ -30,7 +30,7 @@ import seaborn as sns
 from PIL import Image
 import scipy as sp
 
-Z_THRESHOLD = 3
+Z_THRESHOLD =2 
 
 
 #pdf = matplotlib.backends.backend_pdf.PdfPages(r'C:\Users\KEVIN-DORGANS\Desktop\output.pdf')
@@ -85,8 +85,8 @@ for PATH in DIR__:
             ax= plt.subplot(151)
             ax2= plt.subplot(152)
             ax3= plt.subplot(153)
-            ax4= plt.subplot(154)
-            ax5= plt.subplot(155)
+            #ax4= plt.subplot(154)
+            #ax5= plt.subplot(155)
             
             #ax.imshow(np.array(SPLIT_IMAGE[0]), cmap=cm.Reds)
             #ax2.imshow(np.array(SPLIT_IMAGE[1]), cmap=cm.Greens)
@@ -101,7 +101,7 @@ for PATH in DIR__:
             eGFP = sp.stats.zscore(eGFP)
             ax.imshow(np.reshape(eGFP, (-1, w)), cmap= cm.GnBu )
             ax2.imshow(np.reshape(tdTomato, (-1, w)), cmap=cm.RdPu)
-            ax3.imshow(np.reshape(eGFP/ tdTomato , (-1, w)), cmap=cm.jet)
+            ax3.imshow(np.reshape(eGFP/ tdTomato , (-1, w)), cmap=cm.magma)
 
 
             
@@ -162,7 +162,7 @@ for PATH in DIR__:
             tDTomato_OUT_sup = tDTomato_OUT_sup[~np.isnan(tDTomato_OUT_sup)]
             tDTomato_OUT_sup = tDTomato_OUT_sup[~(tDTomato_OUT_sup<Z_THRESHOLD)]
 
-            ax5.boxplot([tDt_CONC, eGFP_ARRAY_CONC, tDTomato_IO, eGFP_IO], showfliers=False)
+            #ax5.boxplot([tDt_CONC, eGFP_ARRAY_CONC, tDTomato_IO, eGFP_IO], showfliers=False)
             
             promoter_name_ = PATH.split('\\')[-1].split('-')[0].split('_')[-1]
             filename = PATH.split('\\')[-1].split('.tif')[0]
@@ -205,13 +205,13 @@ for PATH in DIR__:
             
             ax2.set_title('CAG-tdTomato')
             ax.set_title('p-eGFP')
-            ax3.set_title('DAPI')
-            ax4.set_title('Difference image')
-            ax5.set_title('Difference image')
+            ax3.set_title('Divided signals')
+            #ax4.set_title('Difference image')
+            #ax5.set_title('Difference image')
             ax.set_axis_off()
             ax2.set_axis_off()
             ax3.set_axis_off()
-            ax4.set_axis_off()
+            #ax4.set_axis_off()
             plt.title(PATH)
             plt.tight_layout()
             #pdf.savefig(fig)

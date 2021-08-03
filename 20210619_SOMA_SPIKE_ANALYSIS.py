@@ -64,12 +64,15 @@ ALL_PEAK_INDEXES = []
 ALL_SPIKE_TIMESTAMPS = []
 
 
-#FOR COMBINED ePhy/imaging EXPERIMENTS I USED [window=2sec, CaFluoResampling=49]
-#FOR COMBINED imaging-onlyu [window=4sec, CaFluoResampling=150]
+#FOR COMBINED ePhy/imaging EXPERIMENTS I USED [window=2sec, CaFluoResampling=49, Z_THRESHOLD = 3, DEFAULT_FLUO_REC_DURATION = 10]
+#FOR COMBINED imaging-onlyu [window=4sec, CaFluoResampling=150, Z_THRESHOLD = 3, DEFAULT_FLUO_REC_DURATION = 10]
+#FOR CF with faster events [window=3sec, CaFluoResampling=10, Z_THRESHOLD = 2, DEFAULT_FLUO_REC_DURATION = 20]
 
 CalciumEventExtractionWindow = 4 #sec.
 CalciumEventResampling = 150 #frame number for all window. Gets slower if bigger.
 WindowTimeBeforePeak = 0.5 #Croping time before rise detection (s.)
+Z_THRESHOLD = 1.5
+DEFAULT_FLUO_REC_DURATION  = 60
 
 #Search for all constructions/conditions used and make ref# index
 LIST_ = []
@@ -81,7 +84,10 @@ for i in range(len(SPIKE_LIST_MANUAL_CROP_PROMOTER)):
 for l in range(len(SPIKE_LIST_MANUAL_CROP)):  
     if True:
         PATH = SPIKE_LIST_MANUAL_CROP_ID[l]
-        timestamp = int(PATH .split('_00')[0].split('-')[-1])
+        try:
+            timestamp = int(PATH .split('_00')[0].split('-')[-1])
+        except:
+            timestamp = 0
 
         try:
             try:
@@ -89,7 +95,7 @@ for l in range(len(SPIKE_LIST_MANUAL_CROP)):
                 if ('SPIKE_LIST_MANUAL_CROP_LEN' in dir()) == True and len(SPIKE_LIST_MANUAL_CROP_LEN)>0:
                     FluoRecDuration = SPIKE_LIST_MANUAL_CROP_LEN[l]
                 else:
-                    FluoRecDuration = 10 #Default is 10sec. recording
+                    FluoRecDuration = DEFAULT_FLUO_REC_DURATION #Default is 10sec. recording
                     
                 SAMPLING_FREQUENCY = len(MEAN)/FluoRecDuration
                 
@@ -97,7 +103,7 @@ for l in range(len(SPIKE_LIST_MANUAL_CROP)):
                 FILT = FILT - np.nanmean(FILT)
                 FILT_ = FILT
                 ZSCORE_FILT = sp.stats.zscore(FILT_)
-                PEAKS = sp.signal.find_peaks(ZSCORE_FILT, height=3, distance= SAMPLING_FREQUENCY/1.5)
+                PEAKS = sp.signal.find_peaks(ZSCORE_FILT, height = Z_THRESHOLD, distance= SAMPLING_FREQUENCY/1.5)
 
                 FILT = MEAN
                 plt.figure()
