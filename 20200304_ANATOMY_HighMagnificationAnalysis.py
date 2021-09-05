@@ -166,9 +166,12 @@ for j in range(len(LIST_)):
             ratio_.append(np.nanmean(FULL_DIVIDED[i]))
             temp_.append(FULL_DIVIDED[i])
     ax.hist(ratio_, histtype='step', density=True)
-    MEAN = np.nanmean(ratio_)
+    MEAN = (np.nanmean(ratio_)-np.nanmean(np.concatenate(FULL_DIVIDED)))*100
     SEM = sp.stats.sem(ratio_)
-    print(LIST_[j]+' '+str(MEAN)+' +/-'+str(SEM)+' n='+str(len(np.concatenate(temp_))))
+    try:
+        print(LIST_[j]+' '+str(MEAN)+' +/-'+str(SEM)+' n='+str(len(np.concatenate(temp_))))
+    except:
+        print('No vals. for'+str(LIST_[j]))
     ax2.scatter( MEAN, LIST_[j])
     ax2.plot((MEAN+SEM, MEAN-SEM), (LIST_[j], LIST_[j]))
 ax.hist(np.concatenate(FULL_DIVIDED), histtype='step', bins=100, density=True)
@@ -186,9 +189,12 @@ for j in range(len(LIST_)):
             temp_2.append(np.nanmean(FULL_eGFP_INTENSITY_ASTRO[i]))
             temp_3.append(np.nanmean(FULL_DIVIDED[i]))
             ratio_.append(np.nanmean(FULL_eGFP_INTENSITY[i])/np.nanmean(FULL_eGFP_INTENSITY_ASTRO[i]))
-    MEAN = np.nanmean(ratio_)
+    MEAN = (np.nanmean(ratio_)-1)*100
     SEM = sp.stats.sem(ratio_)
-    print(LIST_[j]+' '+str(MEAN)+' +/-'+str(SEM))
+    try:
+        print(LIST_[j]+' '+str(MEAN)+' +/-'+str(SEM))
+    except:
+        print('No vals. for'+str(LIST_[j]))
     ax3.scatter(MEAN, LIST_[j])
     ax3.plot((MEAN+SEM, MEAN-SEM), (LIST_[j], LIST_[j]))
     ax4.scatter(np.nanmean(ratio_), np.nanmean(temp_3))

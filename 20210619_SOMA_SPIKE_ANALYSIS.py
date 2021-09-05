@@ -62,17 +62,17 @@ FILE_NAME = []
 ALL_SPIKES = []
 ALL_PEAK_INDEXES = []
 ALL_SPIKE_TIMESTAMPS = []
-
+ALL_SPIKE_SF = []
 
 #FOR COMBINED ePhy/imaging EXPERIMENTS I USED [window=2sec, CaFluoResampling=49, Z_THRESHOLD = 3, DEFAULT_FLUO_REC_DURATION = 10]
-#FOR COMBINED imaging-onlyu [window=4sec, CaFluoResampling=150, Z_THRESHOLD = 3, DEFAULT_FLUO_REC_DURATION = 10]
+#FOR imaging-only [window=4sec, CaFluoResampling=150, Z_THRESHOLD = 4, DEFAULT_FLUO_REC_DURATION = 10]
 #FOR CF with faster events [window=3sec, CaFluoResampling=10, Z_THRESHOLD = 2, DEFAULT_FLUO_REC_DURATION = 20]
 
 CalciumEventExtractionWindow = 4 #sec.
 CalciumEventResampling = 150 #frame number for all window. Gets slower if bigger.
 WindowTimeBeforePeak = 0.5 #Croping time before rise detection (s.)
-Z_THRESHOLD = 1.5
-DEFAULT_FLUO_REC_DURATION  = 60
+Z_THRESHOLD = 3.5
+DEFAULT_FLUO_REC_DURATION  = 10
 
 #Search for all constructions/conditions used and make ref# index
 LIST_ = []
@@ -103,10 +103,11 @@ for l in range(len(SPIKE_LIST_MANUAL_CROP)):
                 FILT = FILT - np.nanmean(FILT)
                 FILT_ = FILT
                 ZSCORE_FILT = sp.stats.zscore(FILT_)
-                PEAKS = sp.signal.find_peaks(ZSCORE_FILT, height = Z_THRESHOLD, distance= SAMPLING_FREQUENCY/1.5)
+                PEAKS = sp.signal.find_peaks(ZSCORE_FILT, height = Z_THRESHOLD, distance= SAMPLING_FREQUENCY/2)
 
                 FILT = MEAN
-                plt.figure()
+                
+                plt.figure(num=PATH, figsize=(8,3))
                 plt.title(SPIKE_LIST_MANUAL_CROP_ID[l])
                 ax=plt.subplot(131)
                 ax2 = plt.subplot(132)
@@ -128,15 +129,12 @@ for l in range(len(SPIKE_LIST_MANUAL_CROP)):
                             PEAK_LIST.append(temp_)
                             PEAK_LIST_INDEXES.append(PEAKS[0][i]/SAMPLING_FREQUENCY)
                             PEAK_TIMESTAMPS.append(timestamp)
-                        elif int(PEAKS[0][i]- SAMPLING_FREQUENCY/1)<0: #THIS DOESNT WORK
-                            missing = abs(int(PEAKS[0][i]- SAMPLING_FREQUENCY/2))
-                            temp_ = np.concatenate([np.nan for l in range(missing)], temp_)
-                            PEAK_LIST.append(temp_)
-                            PEAK_LIST_INDEXES.append(PEAKS[0][i]/SAMPLING_FREQUENCY)
-                            PEAK_TIMESTAMPS.append(timestamp)
                     except:
-                        print('NoSpikeFound')
-                        
+                        ax2.set_title('NO DETECTION')
+                        print('NO DETECTION')
+                if len(PEAK_LIST)==0:
+                    ax2.set_title('NO DETECTION')
+                    print('NO DETECTION')
                 AVG = np.nanmean(PEAK_LIST, axis=0)
                 SEM = sp.stats.sem(PEAK_LIST, axis=0)
                 ax2.plot(np.linspace(0, FluoRecDuration, len(AVG)), AVG)
@@ -153,6 +151,7 @@ for l in range(len(SPIKE_LIST_MANUAL_CROP)):
                     ALL_PEAK_INDEXES.append(PEAK_LIST_INDEXES[k] )
                     ALL_SPIKES.append(sp.signal.resample(PEAK_LIST[k], CalciumEventResampling))
                     ALL_SPIKE_TIMESTAMPS.append(PEAK_TIMESTAMPS[k])
+                    ALL_SPIKE_SF.append(SAMPLING_FREQUENCY)
             except:
                 pass
         except:
@@ -199,7 +198,7 @@ plt.figure()
 for i in range(len(LIST_)):
     ax = plt.subplot(1, len(LIST_), i+1)
 
-    AVG = [ALL_SPIKES[j]*0.0014665418*SAMPLING_FREQUENCY for j in range(len(ALL_SPIKES)) if PROMOTER_NAME_[j] == LIST_[i]]
+    AVG = [ALL_SPIKES[j]*0.0014665418*ALL_SPIKE_SF[j] for j in range(len(ALL_SPIKES)) if PROMOTER_NAME_[j] == LIST_[i]]
     PEAK_TIMES = [ALL_PEAK_INDEXES[j] for j in range(len(ALL_SPIKES)) if PROMOTER_NAME_[j] == LIST_[i]]
     SORTED_TIMESTAMPS = [ALL_SPIKE_TIMESTAMPS[j] for j in range(len(ALL_SPIKES)) if PROMOTER_NAME_[j] == LIST_[i]]
     
@@ -263,8 +262,8 @@ for i in range(len(LIST_)):
             AVG[k] = AVG[k] - np.nanmedian(AVG[k][PeakDetectionWindow_start-1-BSL_window:PeakDetectionWindow_start-1])
             MEAN = AVG[k] - F_ZERO[k]
             #!!!FILTER!!! 
-            if np.nanmean(AVG[k][int(1.8*CalciumEventResampling/CalciumEventExtractionWindow):int(2*CalciumEventResampling/CalciumEventExtractionWindow)])<(DELTA_MAX_SPIKE[k])/1.4:
-            #if True:
+            #if np.nanmean(AVG[k][int(1.8*CalciumEventResampling/CalciumEventExtractionWindow):int(2*CalciumEventResampling/CalciumEventExtractionWindow)])<(DELTA_MAX_SPIKE[k])/1.4:
+            if True:
                 ax.plot(X, AVG[k] , color='black', lw=0.1)
                 ax.scatter(RISE_TIME_SPIKE[k]+0.5, DELTA_MAX_SPIKE[k], color='red')
                 ALL_F_ZERO.append(F_ZERO[k])
@@ -361,9 +360,11 @@ for i in range(len(ALL_DELTA_SPIKE_PROM)):
     MEAN = np.nanmean(np.nanmean(ALL_RISE_TIME_SPIKE_PROM[i]))
     ax5.plot((np.nanmean(ALL_F_ZERO_PROM[i]), np.nanmean(ALL_F_ZERO_PROM[i])), (MEAN+SEM, MEAN-SEM), color='black', lw=0.1)
     SEM = sp.stats.sem(ALL_F_ZERO_PROM[i])
+    SEM_Y = sp.stats.sem(ALL_RISE_TIME_SPIKE_PROM[i])
     MEAN = np.nanmean(ALL_F_ZERO_PROM[i])
     MEAN_Y = np.nanmean(np.nanmean(ALL_RISE_TIME_SPIKE_PROM[i]))
     ax5.plot((MEAN+SEM, MEAN-SEM), (MEAN_Y , MEAN_Y ), color='black', lw=0.1)
+    ax5.plot((MEAN, MEAN), (MEAN_Y + SEM_Y, MEAN_Y - SEM_Y), color='black', lw=0.1)
 
 for i in range(len(ALL_DELTA_SPIKE_PROM)):
     ax6.scatter(np.nanmean(ALL_F_ZERO_PROM[i]), np.nanmean(ALL_WAVE_DECAY_FACTOR_PROM[i]), label=LIST_[i])
@@ -870,6 +871,9 @@ X_fit = []
 Y_fit = []
 AllFMAX_ePhy = []
 AllPCZero_ePhy = []
+AllPCOne_ePhy = []
+AllCaRT = []
+AllCaTraces = []
 
 plt.figure(figsize=(15, 2))
 
@@ -884,22 +888,26 @@ for i in range(np.nanmax(KMEAN_CLUSTER)):
     temp_ = [PCA_fit[:,0][j] for j in range(len(KMEAN_CLUSTER)) if KMEAN_CLUSTER[j]==i]
     temp_2 = [PCA_fit[:,1][j] for j in range(len(KMEAN_CLUSTER)) if KMEAN_CLUSTER[j]==i]
     temp_3 = [TO_PCA[j] for j in range(len(KMEAN_CLUSTER)) if KMEAN_CLUSTER[j]==i]
-    temp_4 = [ASSOCIATED_CALCIUM_TRACE[j]-np.nanmedian(ASSOCIATED_CALCIUM_TRACE[j][0:25]) for j in range(len(KMEAN_CLUSTER)) if KMEAN_CLUSTER[j]==i]
-    temp_5 = [np.nanmax(temp_4[j])/np.nanmedian(ASSOCIATED_CALCIUM_TRACE[j][0:int(Fluo_resampling_/8)]) for j in range(len(temp_4))]
-    temp_7 = [temp_4[j].tolist().index(np.nanmax(temp_4[j]))*(1/Fluo_resampling_) for j in range(len(temp_4))]
+    temp_4 = [ASSOCIATED_CALCIUM_TRACE[j]-np.nanmin(ASSOCIATED_CALCIUM_TRACE[j][28:30]) for j in range(len(KMEAN_CLUSTER)) if KMEAN_CLUSTER[j]==i]
+    temp_5 = [np.nanmax(temp_4[j][30:]) for j in range(len(temp_4))]
+    temp_7 = [temp_4[j].tolist().index(np.nanmax(temp_4[j][30:]))*(1/Fluo_resampling_)-0.3 for j in range(len(temp_4))]
     temp_8 = [np.nanmedian(ASSOCIATED_CALCIUM_TRACE[j][0:int(Fluo_resampling_/4)]) for j in range(len(temp_4))]
     temp_6 = []
     
     for j in range(len(temp_4)):
         try:
-            temp_6.append(np.float([k*(0.050/200) for k in range(20, len(temp_3[j])) if temp_3[j][k]>18][-1])-0.3)
+            temp_6.append(np.float([k*(0.050/200) for k in range(20, len(temp_3[j])) if temp_3[j][k]>10][-1]))
         except:
             temp_6.append(np.nan)
     
-    X_fit.append([temp_5[k] for k in range(len(temp_5)) if temp_6[k]>0 and np.nanmedian(temp_3[k][20:25])>20])
-    Y_fit.append([temp_6[k] for k in range(len(temp_5)) if temp_6[k]>0 and np.nanmedian(temp_3[k][20:25])>20])
+    X_fit.append([temp_5[k] for k in range(len(temp_6))])
+    Y_fit.append([temp_6[k] for k in range(len(temp_6))])
     AllFMAX_ePhy.append(temp_5)
     AllPCZero_ePhy.append(temp_)
+    AllPCOne_ePhy.append(temp_2)
+    AllCaRT.append(temp_7)
+    AllCaRT = []
+    AllCaTraces.append(temp_4)
     
     temp_9 = [DETECTED_ePHY_SPIKES_CELL[j]  for j in range(len(KMEAN_CLUSTER)) if KMEAN_CLUSTER[j]==i]
     SORTED_CLUSTERS.append(temp_9)
@@ -928,10 +936,8 @@ for i in range(np.nanmax(KMEAN_CLUSTER)):
     print(i, 'CaSpkAmp:',np.nanmean(temp_4), '+/-', sp.stats.sem(temp_4), 'ePhyHW:',np.nanmean(temp_6), '+/-', sp.stats.sem(temp_6))
 
 
-X_fit = np.concatenate(X_fit)
-Y_fit = np.concatenate(Y_fit)
 
-popt, pcov = curve_fit(log_func , X_fit, Y_fit, maxfev=1000)
+#popt, pcov = curve_fit(log_func , X_fit, Y_fit, maxfev=1000)
 x_ = np.linspace(-20, np.nanmax(X_fit), len(X_fit))
 ax6.plot(x_, log_func(x_, *popt), color='black', lw=0.1)
 
@@ -956,4 +962,160 @@ ax6.set_ylabel('Spike half-width (ms)')
 ax7.set_xlabel('Ca.FZero (fW)')
 ax7.set_ylabel('Spike half-width (ms)')
 plt.tight_layout()
+"""
+
+"""
+#v3. re-alignment - re-calculation
+
+plt.figure()
+ax = plt.subplot(171)
+ax2 = plt.subplot(172)
+ax3 = plt.subplot(173)
+ax4 = plt.subplot(174)
+ax5 = plt.subplot(175)
+ax6 = plt.subplot(176)
+ax7 = plt.subplot(177)
+for i in range(len(AllFMAX_ePhy)):
+    if True:
+        temp_ = []
+        temp_2 = []
+        for j in range(len(AllCaTraces[i])):
+            Y = AllCaTraces[i][j]
+            X = np.linspace(0, len(Y), len(Y))
+            popt, pcov = curve_fit(line_func, X[0:30], Y[0:30])
+            fit = line_func(X, *popt)
+            Y = Y
+            Y = [np.nanmedian(Y[k+3]-Y[k]) for k in range(len(Y)-3)]
+            Y = sp.stats.zscore(Y)
+            PEAKINDEX = Y[27:38].tolist().index(np.nanmax(Y[27:38]))
+            ax.scatter(PEAKINDEX+27, Y[PEAKINDEX+27], color='red')
+            ax.plot(Y)
+            X = np.linspace(0-PEAKINDEX, len(AllCaTraces[i][j])-PEAKINDEX, len(AllCaTraces[i][j]))
+            Y = AllCaTraces[i][j][20+PEAKINDEX:90+PEAKINDEX] 
+            Y = Y-Y[6]
+            temp_.append(X)
+            temp_2.append(Y  )
+        ax2.plot(np.nanmean(temp_2, axis=0))
+        for j in range(len(temp_2)):
+            ax2.plot(temp_2[j], color='black', lw=0.1)
+            MaxValue = np.nanmax(temp_2[j][5:])
+            MaxValueIndex = temp_2[j].tolist().index(MaxValue)
+            MaxRiseTime = (MaxValueIndex-5)*0.01
+            ax2.scatter(MaxValueIndex, MaxValue, color='red')
+            
+            if i in [1, 3, 4, 5]:
+                ax3.scatter(AllPCZero_ePhy[i][j], MaxValue, color='black')
+                ax4.scatter(AllPCZero_ePhy[i][j], MaxRiseTime, color='black')
+                ax5.scatter(AllPCOne_ePhy[i][j], MaxValue, color='black')
+                ax6.scatter(AllPCOne_ePhy[i][j], MaxRiseTime, color='black')
+                
+            else:
+                ax3.scatter(AllPCZero_ePhy[i][j], MaxValue, color='blue')
+                ax4.scatter(AllPCZero_ePhy[i][j], MaxRiseTime, color='blue')
+                ax5.scatter(AllPCOne_ePhy[i][j], MaxValue, color='blue')
+                ax6.scatter(AllPCOne_ePhy[i][j], MaxRiseTime, color='blue')
+            try:
+                ax7.scatter(MaxValue, Y_fit[i][j], color='blue')
+            except:
+                pass
+ax3.set_xlabel('PC1')
+ax4.set_xlabel('PC1')
+ax5.set_xlabel('PC2')
+ax6.set_xlabel('PC2')
+ax3.set_ylabel('MaxRawFluo (fW)')
+ax4.set_ylabel('RT (sec.)')
+ax5.set_ylabel('MaxRawFluo (fW)')
+ax6.set_ylabel('RT (sec.)')
+
+ax7.set_xlabel('MaxRawFluo (fW)')
+ax7.set_ylabel('SpikeHW(s)')
+ax7.set_xscale('log')
+
+"""
+
+"""
+#And another one....
+plt.figure()
+ax = plt.subplot(171)
+ax2 = plt.subplot(172)
+ax3 = plt.subplot(173)
+ax4 = plt.subplot(174)
+ax5 = plt.subplot(175)
+ax6 = plt.subplot(176)
+ax7 = plt.subplot(177)
+for i in range(len(AllFMAX_ePhy)):
+    if True:
+        temp_ = []
+        temp_2 = []
+        temp_3 = []
+        for j in range(len(AllCaTraces[i])):
+            Y = AllCaTraces[i][j]
+            FZERO = np.nanmedian(Y)
+            X = np.linspace(0, len(Y), len(Y))
+            popt, pcov = curve_fit(line_func, X[0:30], Y[0:30])
+            fit = line_func(X, *popt)
+            Y = Y
+            Y = [np.nanmedian(Y[k+3]-Y[k]) for k in range(len(Y)-3)]
+            Y = sp.stats.zscore(Y)
+            PEAKINDEX = Y[27:38].tolist().index(np.nanmax(Y[27:38]))
+            
+            ax.scatter(PEAKINDEX+27, Y[PEAKINDEX+27], color='red')
+            ax.plot(Y)
+            X = np.linspace(0-PEAKINDEX, len(AllCaTraces[i][j])-PEAKINDEX, len(AllCaTraces[i][j]))
+            Y = AllCaTraces[i][j][20+PEAKINDEX:90+PEAKINDEX] 
+            Y = Y-Y[6]
+            temp_.append(X)
+            temp_2.append(Y  )
+            temp_3.append(FZERO)
+        ax2.plot(np.nanmean(temp_2, axis=0))
+
+        GroupRT = []
+        for j in range(len(temp_2)):
+            ax2.plot(temp_2[j], color='black', lw=0.1)
+            MaxValue = np.nanmax(temp_2[j][5:])
+            MaxValueIndex = temp_2[j].tolist().index(MaxValue)
+            MaxRiseTime = (MaxValueIndex)*0.01
+            GroupRT.append(MaxRiseTime)
+            ax2.scatter(MaxValueIndex, MaxValue, color='red')
+            
+            if i in [1, 3, 4, 5]:
+                ax3.scatter(Y_fit[i][j], MaxValue, color='black')
+                ax4.scatter(Y_fit[i][j], MaxRiseTime, color='black')
+                ax5.scatter(AllPCZero_ePhy[i][j], MaxValue, color='black')
+                MEAN = np.nanmean([np.nanmax(temp_2[j][5:]) for j in range(len(temp_2))])
+                SEM = sp.stats.sem([np.nanmax(temp_2[j][5:]) for j in range(len(temp_2))])
+                MEAN_2 = np.nanmean(Y_fit[i])
+                SEM_2 = sp.stats.sem(Y_fit[i])
+                ax3.scatter(MEAN_2, MEAN)
+        
+                MEAN = np.nanmean(GroupRT)
+                SEM = sp.stats.sem(GroupRT)
+                MEAN_2 = np.nanmean(Y_fit[i])
+                SEM_2 = sp.stats.sem(Y_fit[i])
+                ax4.scatter(MEAN_2, MEAN)
+            
+            else:
+                ax3.scatter(Y_fit[i][j], MaxValue, color='blue')
+                ax4.scatter(Y_fit[i][j], MaxRiseTime, color='blue')
+                ax5.scatter(AllPCOne_ePhy[i][j], MaxValue, color='blue')
+            try:
+                ax7.scatter(MaxValue, Y_fit[i][j], color='blue')
+            except:
+                pass
+
+        
+
+ax3.set_xlabel('SpikeHW(s)')
+ax4.set_xlabel('SpikeHW(s)')
+ax5.set_xlabel('PC1')
+ax6.set_xlabel('PC2')
+ax3.set_ylabel('MaxRawFluo (fW)')
+ax4.set_ylabel('RT (sec.)')
+ax5.set_ylabel('MaxRawFluo (fW)')
+ax6.set_ylabel('RT (sec.)')
+
+ax7.set_xlabel('MaxRawFluo (fW)')
+ax7.set_ylabel('SpikeHW(s)')
+ax3.set_yscale('log')
+
 """
