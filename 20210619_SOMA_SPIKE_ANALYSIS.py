@@ -1035,6 +1035,9 @@ ax7.set_xscale('log')
 
 """
 #And another one....
+#THERE ARE STILL DOUBLE SPIKES IN C2
+
+ALL_RISE_TIME_PER_CLUSTER = []
 plt.figure()
 ax = plt.subplot(171)
 ax2 = plt.subplot(172)
@@ -1102,6 +1105,7 @@ for i in range(len(AllFMAX_ePhy)):
                 ax7.scatter(MaxValue, Y_fit[i][j], color='blue')
             except:
                 pass
+        ALL_RISE_TIME_PER_CLUSTER.append(GroupRT)
 
         
 

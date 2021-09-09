@@ -49,6 +49,8 @@ ALL_STO_POWER_f = []
 ALL_STO_CCORRCOEFF = []
 ALL_STO_POWER_PROMOTER = []
 ALL_FZERO = []
+ALL_WELCH_SPEC = []
+ALL_WELCH_SPEC_f = []
 
 LIST_ = []
 for i in range(len(STO_LIST_MANUAL_CROP_PROMOTER)):
@@ -72,6 +74,9 @@ for i in range(len(STO_LIST_MANUAL_CROP)):
     rs = [crosscorr(df['1'], df['1'], lag) for lag in range(-int(SAMPLING_FREQUENCY),int(SAMPLING_FREQUENCY+1))]
     rs_peaks = sp.signal.find_peaks(rs, distance=SAMPLING_FREQUENCY/10)[0]
     f, Pxx_spec = signal.welch(MEAN , SAMPLING_FREQUENCY , window='blackman', noverlap = SAMPLING_FREQUENCY/2 , nperseg=SAMPLING_FREQUENCY*7 , nfft=SAMPLING_FREQUENCY*18, average='mean')
+
+
+
     MEAN = MEAN - MED_FILT
     
     Max_Ccorr_peaks = []
@@ -98,9 +103,14 @@ for i in range(len(STO_LIST_MANUAL_CROP)):
         ALL_FZERO.append(np.nanmedian(STO_LIST_MANUAL_CROP[i][0:int(SAMPLING_FREQUENCY)])*0.0014665418*SAMPLING_FREQUENCY)
         ALL_STO_TRACES.append(STO_LIST_MANUAL_CROP[i])
         ALL_STO_TRACES_ID.append(int(STO_LIST_MANUAL_CROP_ID[i].split('_00')[0].split('-')[-1]))
-
+        ALL_WELCH_SPEC.append(Pxx_spec)
+        ALL_WELCH_SPEC_f.append(f)
+        
 X_fit = []
 Y_fit = []
+Z_fit = []
+GROUPED_STO_POWER_DFF = []
+
 plt.figure(figsize=(13,3))
 ax = plt.subplot(161)
 ax2 = plt.subplot(162)
@@ -119,6 +129,8 @@ for i in range(len(LIST_)):
     print(LIST_[i], np.nanmean(temp_y), '+/-', sp.stats.sem(temp_y), 'n=', len(temp_y))
     X_fit.append(np.nanmean(temp_x))
     Y_fit.append(np.nanmean(temp_y))
+    Z_fit.append(np.nanmean(np.divide(temp_y, temp_x)))
+    GROUPED_STO_POWER_DFF.append(np.divide(temp_y, temp_x))
     MEAN = np.nanmean(temp_x)
     MEAN_2 = np.nanmean(temp_y)
     SEM = sp.stats.sem(temp_x)
