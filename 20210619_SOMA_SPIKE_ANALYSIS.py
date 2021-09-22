@@ -68,10 +68,10 @@ ALL_SPIKE_SF = []
 #FOR imaging-only [window=4sec, CaFluoResampling=150, Z_THRESHOLD = 4, DEFAULT_FLUO_REC_DURATION = 10]
 #FOR CF with faster events [window=3sec, CaFluoResampling=10, Z_THRESHOLD = 2, DEFAULT_FLUO_REC_DURATION = 20]
 
-CalciumEventExtractionWindow = 4 #sec.
-CalciumEventResampling = 150 #frame number for all window. Gets slower if bigger.
+CalciumEventExtractionWindow = 2 #sec.
+CalciumEventResampling = 49 #frame number for all window. Gets slower if bigger.
 WindowTimeBeforePeak = 0.5 #Croping time before rise detection (s.)
-Z_THRESHOLD = 3.5
+Z_THRESHOLD = 3
 DEFAULT_FLUO_REC_DURATION  = 10
 
 #Search for all constructions/conditions used and make ref# index
@@ -669,7 +669,7 @@ try:
 except:
     print('file not recognized')
 
-plt.figure(figsize=(4,2))
+plt.figure(figsize=(16,3))
 ax = plt.subplot(141)
 ax2 = plt.subplot(142)
 ax3 = plt.subplot(143)
@@ -696,7 +696,9 @@ ax.set_xlabel('Fixed GCamp6s Fluo')
 ax2.set_xlabel('InVitro FZero')
 ax3.set_xlabel('Fixed GCamp6s Fluo')
 ax3.set_ylabel('InVitro FZero')
-ax4.set_xlabel('log')
+ax4.set_xscale('log')
+ax2.set_xscale('log')
+plt.tight_layout()
 """
 
 
@@ -874,6 +876,7 @@ AllPCZero_ePhy = []
 AllPCOne_ePhy = []
 AllCaRT = []
 AllCaTraces = []
+AllePhyTraces = []
 
 plt.figure(figsize=(15, 2))
 
@@ -896,7 +899,7 @@ for i in range(np.nanmax(KMEAN_CLUSTER)):
     
     for j in range(len(temp_4)):
         try:
-            temp_6.append(np.float([k*(0.050/200) for k in range(20, len(temp_3[j])) if temp_3[j][k]>10][-1]))
+            temp_6.append(np.float([k*(0.050/200)-0.005 for k in range(20, len(temp_3[j])) if temp_3[j][k]>10][-1]))
         except:
             temp_6.append(np.nan)
     
@@ -908,6 +911,7 @@ for i in range(np.nanmax(KMEAN_CLUSTER)):
     AllCaRT.append(temp_7)
     AllCaRT = []
     AllCaTraces.append(temp_4)
+    AllePhyTraces .append(temp_3)
     
     temp_9 = [DETECTED_ePHY_SPIKES_CELL[j]  for j in range(len(KMEAN_CLUSTER)) if KMEAN_CLUSTER[j]==i]
     SORTED_CLUSTERS.append(temp_9)
@@ -1035,10 +1039,11 @@ ax7.set_xscale('log')
 
 """
 #And another one....
-#THERE ARE STILL DOUBLE SPIKES IN C2
-
 ALL_RISE_TIME_PER_CLUSTER = []
-plt.figure()
+ALL_PEAK_AMPLITUDE_PER_CLUSTER = []
+ALL_ePhy_HALF_WIDTH = []
+
+plt.figure(figsize=(15,3))
 ax = plt.subplot(171)
 ax2 = plt.subplot(172)
 ax3 = plt.subplot(173)
@@ -1062,52 +1067,62 @@ for i in range(len(AllFMAX_ePhy)):
             Y = sp.stats.zscore(Y)
             PEAKINDEX = Y[27:38].tolist().index(np.nanmax(Y[27:38]))
             
-            ax.scatter(PEAKINDEX+27, Y[PEAKINDEX+27], color='red')
-            ax.plot(Y)
+            ax.scatter(PEAKINDEX+27, Y[PEAKINDEX+27], color='red',s=3, alpha=0.5)
+            ax.plot(Y, color='black', lw=0.1, alpha=0.7)
             X = np.linspace(0-PEAKINDEX, len(AllCaTraces[i][j])-PEAKINDEX, len(AllCaTraces[i][j]))
             Y = AllCaTraces[i][j][20+PEAKINDEX:90+PEAKINDEX] 
             Y = Y-Y[6]
             temp_.append(X)
-            temp_2.append(Y  )
+            temp_2.append(Y)
             temp_3.append(FZERO)
-        ax2.plot(np.nanmean(temp_2, axis=0))
-
+        ax2.plot(np.nanmean(temp_2, axis=0), color='black', lw=0.1, alpha=0.7)
+        
         GroupRT = []
+        GroupPEAK = []
+        GroupHW = []
         for j in range(len(temp_2)):
             ax2.plot(temp_2[j], color='black', lw=0.1)
-            MaxValue = np.nanmax(temp_2[j][5:])
+            MaxValue = np.nanmax(temp_2[j][7:])
             MaxValueIndex = temp_2[j].tolist().index(MaxValue)
             MaxRiseTime = (MaxValueIndex)*0.01
-            GroupRT.append(MaxRiseTime)
-            ax2.scatter(MaxValueIndex, MaxValue, color='red')
             
-            if i in [1, 3, 4, 5]:
-                ax3.scatter(Y_fit[i][j], MaxValue, color='black')
-                ax4.scatter(Y_fit[i][j], MaxRiseTime, color='black')
-                ax5.scatter(AllPCZero_ePhy[i][j], MaxValue, color='black')
-                MEAN = np.nanmean([np.nanmax(temp_2[j][5:]) for j in range(len(temp_2))])
-                SEM = sp.stats.sem([np.nanmax(temp_2[j][5:]) for j in range(len(temp_2))])
-                MEAN_2 = np.nanmean(Y_fit[i])
-                SEM_2 = sp.stats.sem(Y_fit[i])
-                ax3.scatter(MEAN_2, MEAN)
-        
-                MEAN = np.nanmean(GroupRT)
-                SEM = sp.stats.sem(GroupRT)
-                MEAN_2 = np.nanmean(Y_fit[i])
-                SEM_2 = sp.stats.sem(Y_fit[i])
-                ax4.scatter(MEAN_2, MEAN)
-            
+            if (MaxValueIndex>=18 and MaxValue<30)or MaxValueIndex>30: 
+                ax2.scatter(MaxValueIndex, MaxValue, color='red',s=3, alpha=0.5)
+                MaxValue = np.nanmax(temp_2[j][7:21])
+                MaxValueIndex = temp_2[j].tolist().index(MaxValue)
+                MaxRiseTime = (MaxValueIndex)*0.01
+                ax2.scatter(MaxValueIndex, MaxValue, color='orange',s=3, alpha=0.5)
             else:
-                ax3.scatter(Y_fit[i][j], MaxValue, color='blue')
-                ax4.scatter(Y_fit[i][j], MaxRiseTime, color='blue')
-                ax5.scatter(AllPCOne_ePhy[i][j], MaxValue, color='blue')
+                ax2.scatter(MaxValueIndex, MaxValue, color='blue',s=3, alpha=0.5) 
+            MaxValue = MaxValue + abs(-0.334*MaxValueIndex)
+            if i in [0, 1]:
+                ax3.scatter(Y_fit[i][j], MaxValue, color='white', edgecolors='black', alpha=0.1)
+                ax4.scatter(Y_fit[i][j], MaxRiseTime, color='white', edgecolors='black', alpha=0.1)
+                ax5.scatter(AllPCZero_ePhy[i][j], MaxValue, color='white', edgecolors='black', alpha=0.1)
+                
+            elif i in [2]:
+                ax3.scatter(Y_fit[i][j], MaxValue, color='green', alpha=0.1)
+                ax4.scatter(Y_fit[i][j], MaxRiseTime, color='green', alpha=0.1)
+                ax5.scatter(AllPCZero_ePhy[i][j], MaxValue, color='green', alpha=0.1)
+            else:
+                ax3.scatter(Y_fit[i][j], MaxValue, color='white', edgecolors='black', alpha=0.8)
+                ax4.scatter(Y_fit[i][j], MaxRiseTime, color='white', edgecolors='black', alpha=0.8)
+                ax5.scatter(AllPCOne_ePhy[i][j], MaxValue, color='white', edgecolors='black', alpha=0.8)
+                
+                
             try:
-                ax7.scatter(MaxValue, Y_fit[i][j], color='blue')
+                ax7.scatter(MaxValue, Y_fit[i][j], color='blue', alpha=0.3)
             except:
                 pass
+            GroupRT.append(MaxRiseTime)
+            GroupPEAK.append(MaxValue)
+            GroupHW.append(Y_fit[i][j])
         ALL_RISE_TIME_PER_CLUSTER.append(GroupRT)
+        ALL_PEAK_AMPLITUDE_PER_CLUSTER.append(GroupPEAK)
+        ALL_ePhy_HALF_WIDTH.append(GroupHW)
 
-        
+        ax3.scatter(np.nanmean(GroupHW), np.nanmean(GroupPEAK))        
+        ax4.scatter(np.nanmean(GroupHW), np.nanmean(GroupRT))
 
 ax3.set_xlabel('SpikeHW(s)')
 ax4.set_xlabel('SpikeHW(s)')
@@ -1121,5 +1136,5 @@ ax6.set_ylabel('RT (sec.)')
 ax7.set_xlabel('MaxRawFluo (fW)')
 ax7.set_ylabel('SpikeHW(s)')
 ax3.set_yscale('log')
-
+plt.tight_layout()
 """

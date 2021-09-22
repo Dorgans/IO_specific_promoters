@@ -30,10 +30,10 @@ import seaborn as sns
 from PIL import Image
 import scipy as sp
 
-Z_THRESHOLD =2 
+Z_THRESHOLD =3
 
 
-#pdf = matplotlib.backends.backend_pdf.PdfPages(r'C:\Users\KEVIN-DORGANS\Desktop\output.pdf')
+pdf = matplotlib.backends.backend_pdf.PdfPages(r'C:\Users\KEVIN-DORGANS\Desktop\output.pdf')
 DIR__, DIRECTORY = load_directory_content__()
 HALF_LABEL_LIST = pd.read_csv(DIRECTORY+r'\20200828_HALF_IO_DILUTION_LABELS.csv')
 
@@ -81,12 +81,11 @@ for PATH in DIR__:
             IM = Image.open(PATH)
             SPLIT_IMAGE = Image.Image.split(IM.convert('RGB'))
             
-            fig = plt.figure(num=PATH, figsize=(13,3))
-            ax= plt.subplot(151)
-            ax2= plt.subplot(152)
-            ax3= plt.subplot(153)
-            #ax4= plt.subplot(154)
-            #ax5= plt.subplot(155)
+            fig = plt.figure(num=PATH, figsize=(20,12))
+            ax= plt.subplot(121)
+            ax2= plt.subplot(122, sharex= ax)
+            ax.set_title('eGFP-signal')
+            ax2.set_title('tDtomato-signal')
             
             #ax.imshow(np.array(SPLIT_IMAGE[0]), cmap=cm.Reds)
             #ax2.imshow(np.array(SPLIT_IMAGE[1]), cmap=cm.Greens)
@@ -99,9 +98,9 @@ for PATH in DIR__:
             
             tdTomato = sp.stats.zscore(tdTomato)
             eGFP = sp.stats.zscore(eGFP)
-            ax.imshow(np.reshape(eGFP, (-1, w)), cmap= cm.GnBu )
-            ax2.imshow(np.reshape(tdTomato, (-1, w)), cmap=cm.RdPu)
-            ax3.imshow(np.reshape(eGFP/ tdTomato , (-1, w)), cmap=cm.magma)
+            #ax.imshow(np.reshape(eGFP, (-1, w)), cmap= cm.GnBu )
+            #ax2.imshow(np.reshape(tdTomato, (-1, w)), cmap=cm.RdPu)
+            #ax3.imshow(np.reshape(eGFP/ tdTomato , (-1, w)), cmap=cm.magma)
 
 
             
@@ -126,6 +125,7 @@ for PATH in DIR__:
             """
             
             IM_ARRAY = np.array(np.reshape(eGFP, (-1, w)))
+            Z_SCORE_PROCESSED_eGFP_IMAGE = np.array(np.reshape(eGFP, (-1, w)))
             ROI_crop = pd.read_csv(PATH.split('tif')[0]+'csv')
             IO_PIXEL_SIZE.append(len(ROI_crop))
             
@@ -138,14 +138,25 @@ for PATH in DIR__:
                 eGFP_IO.append(IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]])
                 if IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]]>Z_THRESHOLD:
                     eGFP_IO_sup.append(IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]])
+                else:
+                    Z_SCORE_PROCESSED_eGFP_IMAGE[ROI_crop.Y[k]][ROI_crop.X[k]]=np.nan
                 IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]] = np.nan
+            
+            #Z_SCORE_PROCESSED_eGFP_IMAGE = np.concatenate(Z_SCORE_PROCESSED_eGFP_IMAGE)
+            #for k in range(len(Z_SCORE_PROCESSED_eGFP_IMAGE)):
+                #if Z_SCORE_PROCESSED_eGFP_IMAGE[k]<Z_THRESHOLD:
+                    #Z_SCORE_PROCESSED_eGFP_IMAGE[k] = np.nan
+                    
+            #ax.imshow(np.reshape(Z_SCORE_PROCESSED_eGFP_IMAGE, (-1, w)), cmap= cm.GnBu )
+
+            
             eGFP_IO_sup = eGFP_ARRAY_CONC = np.array(eGFP_IO_sup)
             eGFP_OUT_sup = np.array(np.concatenate(IM_ARRAY))
             eGFP_OUT_sup = eGFP_OUT_sup[~np.isnan(eGFP_OUT_sup)]
             eGFP_OUT_sup = eGFP_OUT_sup[~(eGFP_OUT_sup<Z_THRESHOLD)]
             
-
             IM_ARRAY = np.array(np.reshape(tdTomato, (-1, w)))
+            Z_SCORE_PROCESSED_tDt_IMAGE = np.array(np.reshape(tdTomato, (-1, w)))
             ROI_crop = pd.read_csv(PATH.split('tif')[0]+'csv')
             tDTomato_IO = []
             tDTomato_IO_sup = []
@@ -154,9 +165,21 @@ for PATH in DIR__:
             tDTomato_OUT_inf = []
             for k in range(len(ROI_crop.X)):
                 tDTomato_IO.append(IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]])
-                if  IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]]>Z_THRESHOLD:
+                if IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]]>Z_THRESHOLD:
                     tDTomato_IO_sup.append(IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]])
+                else:
+                    Z_SCORE_PROCESSED_tDt_IMAGE[ROI_crop.Y[k]][ROI_crop.X[k]]= np.nan
                 IM_ARRAY[ROI_crop.Y[k]][ROI_crop.X[k]] = np.nan
+           
+            #Z_SCORE_PROCESSED_tDt_IMAGE = np.concatenate(Z_SCORE_PROCESSED_tDt_IMAGE)
+            #for k in range(len(Z_SCORE_PROCESSED_tDt_IMAGE)):
+                #if Z_SCORE_PROCESSED_tDt_IMAGE[k]<Z_THRESHOLD:
+                    #Z_SCORE_PROCESSED_tDt_IMAGE[k] = np.nan
+                    
+            #ax2.imshow(np.reshape(Z_SCORE_PROCESSED_tDt_IMAGE, (-1, w)), cmap= cm.RdPu )
+         
+
+            
             tDTomato_IO_sup = tDt_CONC = np.array(tDTomato_IO_sup)
             tDTomato_OUT_sup = np.array(np.concatenate(IM_ARRAY))
             tDTomato_OUT_sup = tDTomato_OUT_sup[~np.isnan(tDTomato_OUT_sup)]
@@ -198,27 +221,27 @@ for PATH in DIR__:
             FULL_tDt_IO_IN_DOWN.append(np.nanmean(0))
             FULL_eGFP_IO_IN_DOWN.append(np.nanmean(0))
             
-            FULL_tDt_SPREAD_IN.append(np.nanmean(tDt_SPREAD_IN))
-            FULL_eGFP_SPREAD_IN.append(np.nanmean(eGFP_SPREAD_IN))
-            FULL_tDt_SPREAD_OUT.append(np.nanmean(tDt_SPREAD_OUT))
-            FULL_eGFP_SPREAD_OUT.append(np.nanmean(eGFP_SPREAD_OUT))
+            FULL_tDt_SPREAD_IN.append(len(tDTomato_IO_sup))
+            FULL_eGFP_SPREAD_IN.append(len(eGFP_IO_sup))
+            FULL_tDt_SPREAD_OUT.append(len(tDTomato_OUT_sup))
+            FULL_eGFP_SPREAD_OUT.append(len(eGFP_OUT_sup))
             
             ax2.set_title('CAG-tdTomato')
             ax.set_title('p-eGFP')
-            ax3.set_title('Divided signals')
+            #ax3.set_title('Divided signals')
             #ax4.set_title('Difference image')
             #ax5.set_title('Difference image')
             ax.set_axis_off()
             ax2.set_axis_off()
-            ax3.set_axis_off()
+            #ax3.set_axis_off()
             #ax4.set_axis_off()
             plt.title(PATH)
             plt.tight_layout()
-            #pdf.savefig(fig)
+            pdf.savefig(fig)
         #except:
             #pass
 
-#pdf.close()
+pdf.close()
 
 
 '''
@@ -748,16 +771,18 @@ ax10.set_xlabel('Dilution')
 ax9.set_ylabel('IO-spe./non-spe.')
 
 
-LIST = ['1.3kb',
+LIST = [
+ '1.3kb',
  '2.5kb',
  'Igsf9(3.7kb)',
  '5HTr2b(1.0kb)',
  '5HTr2b(1.8kb)',
  '5HTr2b(3.0kb)',
- '5HTr2b',
- 'PDX1',
  'SUSD4',
- 'AV9']
+ 'PDX1',
+ 'AV9',
+ '5HTr2b']
+
 
 pix_to_um_conversion_factor = 0.3613
 
@@ -1014,6 +1039,15 @@ ax5.set_title('PDX1-eGFP')
 ax6.set_title('SUSD4-eGFP')
 """
 
+FULL_tDt_SPREAD_IN = np.multiply(FULL_tDt_SPREAD_IN, pix_to_um_conversion_factor)
+FULL_eGFP_SPREAD_IN = np.multiply(FULL_eGFP_SPREAD_IN, pix_to_um_conversion_factor)
+FULL_tDt_SPREAD_OUT = np.multiply(FULL_tDt_SPREAD_OUT, pix_to_um_conversion_factor)
+FULL_eGFP_SPREAD_OUT = np.multiply(FULL_eGFP_SPREAD_OUT, pix_to_um_conversion_factor)
+
+IO_SIGNAL_COVERAGE_PER_PROMOTER = []
+IO_ASPECIFIC_COVERAGE_PER_PROMOTER = []
+IO_SIGNAL_COVERAGE_PER_PROMOTER_normed = []
+IO_ASPECIFIC_COVERAGE_PER_PROMOTER_normed  = []
 
 plt.figure(figsize=(12,3))
 ax = plt.subplot(141)
@@ -1025,15 +1059,21 @@ for i in LIST:
     X = []
     Y = []
     Z = []
+    ZX = []
+    
     for j in range(len(FULL_PROMOTER_NAMES)):    
         if i==FULL_PROMOTER_NAMES[j]:
-            X.append(np.divide(FULL_eGFP_SPREAD_IN[j] , FULL_tDt_SPREAD_IN[j])/ np.nanmean(np.divide(FULL_eGFP_SPREAD_IN, FULL_tDt_SPREAD_IN)))
+            X.append(FULL_eGFP_SPREAD_IN[j])# , FULL_tDt_SPREAD_IN[j])/ np.nanmean(np.divide(FULL_eGFP_SPREAD_IN, FULL_tDt_SPREAD_IN)))
             Y.append(np.divide(FULL_eGFP_SPREAD_IN[j] , FULL_tDt_SPREAD_IN[j]))
-            Z.append(np.divide(FULL_eGFP_SPREAD_OUT[j], FULL_tDt_SPREAD_OUT[j])/ np.nanmean(np.divide(FULL_eGFP_SPREAD_OUT, FULL_tDt_SPREAD_OUT)))
-    X = np.divide(np.array(np.multiply(np.subtract(X, 1), 10000), dtype=np.int), 100)
-    Y = np.divide(np.array(np.multiply(np.subtract(Y, 1), 10000), dtype=np.int), 100)
-    Z = np.divide(np.array(np.multiply(np.subtract(Z, 1), 10000), dtype=np.int), 100)
-    
+            Z.append(FULL_eGFP_SPREAD_OUT[j])#, FULL_tDt_SPREAD_OUT[j])/ np.nanmean(np.divide(FULL_eGFP_SPREAD_OUT, FULL_tDt_SPREAD_OUT)))
+            ZX.append(np.divide(FULL_eGFP_SPREAD_OUT[j], FULL_tDt_SPREAD_OUT[j]))
+            
+
+    IO_SIGNAL_COVERAGE_PER_PROMOTER.append(X)
+    IO_ASPECIFIC_COVERAGE_PER_PROMOTER.append(Z)
+    IO_SIGNAL_COVERAGE_PER_PROMOTER_normed.append(Y)
+    IO_ASPECIFIC_COVERAGE_PER_PROMOTER_normed.append(ZX)
+
     print(str(i)+' : '+str(len(X))+" AVG: "+str(np.nanmean(X))+" +/- "+str(sp.stats.sem(X)))
     MEAN = np.nanmean(X)
     SEM = sp.stats.sem(X)
@@ -1041,15 +1081,19 @@ for i in LIST:
     ax.scatter(MEAN, i, color='black')
     ax.plot((MEAN+SEM, MEAN-SEM), (i,i), color='black')
     
-    MEAN = np.nanmean(Y)
-    SEM = sp.stats.sem(Y)
+    MEAN = np.nanmean(Z)
+    SEM = sp.stats.sem(Z)
     ax2.scatter(MEAN, i, color='black')
     ax2.plot((MEAN+SEM, MEAN-SEM),(i,i), color='black')
 
-    MEAN = np.nanmean(Z)
-    SEM = sp.stats.sem(Z)
-    ax3.scatter(MEAN, i, color='black')
-    ax3.plot((MEAN+SEM, MEAN-SEM),(i,i), color='black')
+    ax3.scatter(np.nanmean(ZX), np.nanmean(Y), color='black')
+    ax3.text(np.nanmean(ZX), np.nanmean(Y), i)
+    MEAN = np.nanmean(ZX)
+    SEM = sp.stats.sem(ZX)
+    ax3.plot((MEAN+SEM, MEAN-SEM), (np.nanmean(Y),np.nanmean(Y)), color='black')
+    MEAN = np.nanmean(Y)
+    SEM = sp.stats.sem(Y)
+    ax3.plot((np.nanmean(ZX),np.nanmean(ZX)), (MEAN+SEM, MEAN-SEM),  color='black')
 
     ax4.scatter(np.nanmean(Z), np.nanmean(X), color='black')
     ax4.text(np.nanmean(Z), np.nanmean(X), i)
@@ -1060,6 +1104,22 @@ for i in LIST:
     SEM = sp.stats.sem(X)
     ax4.plot((np.nanmean(Z),np.nanmean(Z)), (MEAN+SEM, MEAN-SEM),  color='black')
 
-    ax4.set_ylabel('NORMALIZED IO-SPECIFICITY')
-    ax4.set_xlabel('NORMALIZED EXPRESSION LEVEL IN IO')
+
+if True:
+    MEAN = np.nanmean(FULL_tDt_SPREAD_IN)
+    SEM = sp.stats.sem(FULL_tDt_SPREAD_IN)
+    i = 'CONTROL'
+    ax.scatter(MEAN, i, color='black')
+    ax.plot((MEAN+SEM, MEAN-SEM), (i,i), color='black')
+    
+    MEAN = np.nanmean(FULL_tDt_SPREAD_OUT)
+    SEM = sp.stats.sem(FULL_tDt_SPREAD_OUT)
+    ax2.scatter(MEAN, i, color='black')
+    ax2.plot((MEAN+SEM, MEAN-SEM),(i,i), color='black')
+ax.set_title('Expression spread inside IO (um2)')
+ax2.set_title('Expression spread around IO (um2)')
+ax3.set_xlabel('Normalized spread around IO')
+ax3.set_ylabel('Normalized spread in IO')
+ax4.set_xlabel('Expression spread around IO (um2)')
+ax4.set_ylabel('Expression spread inside IO (um2)')
 plt.tight_layout()
