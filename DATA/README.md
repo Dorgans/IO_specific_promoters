@@ -1,4 +1,4 @@
 
 # FIGURE TABLES
- 1. One file contains datasets plotted in all figures<br/>
- 2. The other files contains statistics based on data from 1st file
+ 1. 'DATA' file contains datasets plotted in all figures<br/>
+ 2. 'STATISTICS' file contains statistics based on data from 1st file
