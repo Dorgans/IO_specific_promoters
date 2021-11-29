@@ -109,33 +109,42 @@ for i in range(len(STO_LIST_MANUAL_CROP)):
 X_fit = []
 Y_fit = []
 Z_fit = []
+GROUPED_STO_POWER_PSD = []
 GROUPED_STO_POWER_DFF = []
+GROUPED_STO_FZero = []
 
 plt.figure(figsize=(13,3))
-ax = plt.subplot(161)
-ax2 = plt.subplot(162)
-ax3 = plt.subplot(163)
-ax4 = plt.subplot(164)
-ax5 = plt.subplot(165)
-ax6 = plt.subplot(166)
+ax = plt.subplot(171)
+ax2 = plt.subplot(172)
+ax3 = plt.subplot(173)
+ax4 = plt.subplot(174)
+ax5 = plt.subplot(175)
+ax6 = plt.subplot(176)
+ax7 = plt.subplot(177)
 
 for i in range(len(LIST_)):
     temp_x = []
     temp_y = []
+    temp_z = []
     for j in range(len(ALL_STO_POWER_PROMOTER)):
         if ALL_STO_POWER_PROMOTER[j] == LIST_[i]:
             temp_x.append(ALL_FZERO[j])
             temp_y.append(ALL_STO_POWER[j])
+            temp_z.append(ALL_STO_POWER_f[j])
     print(LIST_[i], np.nanmean(temp_y), '+/-', sp.stats.sem(temp_y), 'n=', len(temp_y))
     X_fit.append(np.nanmean(temp_x))
     Y_fit.append(np.nanmean(temp_y))
     Z_fit.append(np.nanmean(np.divide(temp_y, temp_x)))
     GROUPED_STO_POWER_DFF.append(np.divide(temp_y, temp_x))
+    GROUPED_STO_POWER_PSD.append(temp_y)
+    GROUPED_STO_FZero.append(temp_x)
     MEAN = np.nanmean(temp_x)
     MEAN_2 = np.nanmean(temp_y)
+    MEAN_4 = np.nanmean(temp_z)
     SEM = sp.stats.sem(temp_x)
     SEM_2 = sp.stats.sem(temp_y)
     SEM_3 = sp.stats.sem(np.divide(temp_y, temp_x))
+    SEM_4 = sp.stats.sem(temp_z)
     
     ax.scatter(MEAN, MEAN_2, label=LIST_[i])
     ax2.scatter(MEAN, MEAN_2/MEAN)
@@ -146,10 +155,14 @@ for i in range(len(LIST_)):
     
     ax5.scatter(MEAN, MEAN_2, label=LIST_[i])
     ax6.scatter(MEAN, MEAN_2/MEAN)
+    ax7.scatter(MEAN, MEAN_4, label=LIST_[i])
     ax5.plot((MEAN-SEM, MEAN+SEM), (MEAN_2, MEAN_2), color='black')
     ax5.plot((MEAN, MEAN), (MEAN_2-SEM_2, MEAN_2+SEM_2), color='black')
     ax6.plot((MEAN, MEAN), (MEAN_2/MEAN-SEM_3, MEAN_2/MEAN+SEM_3), color='black')
     ax6.plot((MEAN-SEM, MEAN+SEM), (MEAN_2/MEAN, MEAN_2/MEAN), color='black')
+
+    ax6.plot((MEAN, MEAN), (MEAN_4-SEM_4, MEAN_4+SEM_4), color='black')
+    ax6.plot((MEAN-SEM, MEAN+SEM), (MEAN_4, MEAN_4), color='black')
      
     
     ax3.hist(temp_y, histtype='step', cumulative=True, density=True, bins=200)

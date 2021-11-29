@@ -192,7 +192,8 @@ ALL_SPIKE_WAVES_PROM = []
 PROMOTER_NAME_ALL = []
 ALL_TIMESTAMPS_PROM = []
 ALL_PEAK_TIMES_PROM = []
-
+ALL_PROMOTER_TYPE_PROM = []
+ALL_ENVELOPE_TYPE_PROM = []
 
 plt.figure()
 for i in range(len(LIST_)):
@@ -289,7 +290,8 @@ for i in range(len(LIST_)):
         PROMOTER_NAME_ALL.append([LIST_[i] for k in range(len(RISE_TIME_SPIKE))])
         ALL_TIMESTAMPS_PROM.append(ALL_TIMESTAMPS)
         ALL_PEAK_TIMES_PROM.append(ALL_PEAK_TIMES)
-    
+        ALL_PROMOTER_TYPE_PROM.append([LIST_[i].split('.')[-1] for k in range(len(RISE_TIME_SPIKE))])
+        ALL_ENVELOPE_TYPE_PROM.append([LIST_[i].split('AAV')[1].split('.')[0] for k in range(len(RISE_TIME_SPIKE))])
 plt.xlabel('Time(s.)')
 plt.legend()
 
@@ -676,18 +678,20 @@ ax3 = plt.subplot(143)
 ax4 = plt.subplot(144)
 
 ALL_TEMP = []
-
+ALL_TEMP_2 = []
 for i in range(len(LIST_)):
     temp_ = [ALL_FIXED_TISSUE_CELL_INTENSITIES[j] for j in range(len(ALL_FIXED_TISSUE_CELL_INTENSITIES_PROM)) if ALL_FIXED_TISSUE_CELL_INTENSITIES_PROM[j]==LIST_[i]]
     temp_2 = ALL_F_ZERO_PROM[i]
-    ALL_TEMP.append(np.concatenate(temp_))
-    
+
+        
     ax.hist(np.concatenate(temp_), histtype='step', cumulative=True, density=True, bins=200)
     ax2.hist(temp_2, histtype='step', cumulative=True, density=True, bins=200)
     MEAN = np.nanmean(np.concatenate(temp_))
     SEM = sp.stats.sem(np.concatenate(temp_))
     MEAN_2 = np.nanmean(temp_2)
     SEM_2 = sp.stats.sem(temp_2)
+    ALL_TEMP.append(MEAN)
+    ALL_TEMP_2.append(MEAN_2)
     ax3.plot((MEAN, MEAN), (MEAN_2+SEM_2, MEAN_2-SEM_2), color='black')
     ax3.plot((MEAN+SEM, MEAN-SEM), (MEAN_2, MEAN_2), color='black')
     ax3.scatter(np.nanmean(np.concatenate(temp_)), MEAN_2)

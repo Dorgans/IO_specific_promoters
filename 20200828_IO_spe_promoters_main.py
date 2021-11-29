@@ -1039,10 +1039,24 @@ ax5.set_title('PDX1-eGFP')
 ax6.set_title('SUSD4-eGFP')
 """
 
+
+FULL_tDt_SPREAD_IN = np.divide(FULL_tDt_SPREAD_IN, IO_PIXEL_SIZE)
+FULL_eGFP_SPREAD_IN = np.divide(FULL_eGFP_SPREAD_IN, IO_PIXEL_SIZE)
+FULL_tDt_SPREAD_OUT = np.divide(FULL_tDt_SPREAD_OUT, IO_PIXEL_SIZE)
+FULL_eGFP_SPREAD_OUT = np.divide(FULL_eGFP_SPREAD_OUT, IO_PIXEL_SIZE)
+
+FULL_tDt_SPREAD_IN = np.multiply(FULL_tDt_SPREAD_IN, 100)
+FULL_eGFP_SPREAD_IN = np.multiply(FULL_eGFP_SPREAD_IN, 100)
+FULL_tDt_SPREAD_OUT = np.multiply(FULL_tDt_SPREAD_OUT, 100)
+FULL_eGFP_SPREAD_OUT = np.multiply(FULL_eGFP_SPREAD_OUT, 100)
+
+
+"""
 FULL_tDt_SPREAD_IN = np.multiply(FULL_tDt_SPREAD_IN, pix_to_um_conversion_factor)
 FULL_eGFP_SPREAD_IN = np.multiply(FULL_eGFP_SPREAD_IN, pix_to_um_conversion_factor)
 FULL_tDt_SPREAD_OUT = np.multiply(FULL_tDt_SPREAD_OUT, pix_to_um_conversion_factor)
 FULL_eGFP_SPREAD_OUT = np.multiply(FULL_eGFP_SPREAD_OUT, pix_to_um_conversion_factor)
+"""
 
 IO_SIGNAL_COVERAGE_PER_PROMOTER = []
 IO_ASPECIFIC_COVERAGE_PER_PROMOTER = []
@@ -1095,14 +1109,14 @@ for i in LIST:
     SEM = sp.stats.sem(Y)
     ax3.plot((np.nanmean(ZX),np.nanmean(ZX)), (MEAN+SEM, MEAN-SEM),  color='black')
 
-    ax4.scatter(np.nanmean(Z), np.nanmean(X), color='black')
-    ax4.text(np.nanmean(Z), np.nanmean(X), i)
-    MEAN = np.nanmean(Z)
-    SEM = sp.stats.sem(Z)
-    ax4.plot((MEAN+SEM, MEAN-SEM), (np.nanmean(X),np.nanmean(X)), color='black')
-    MEAN = np.nanmean(X)
-    SEM = sp.stats.sem(X)
-    ax4.plot((np.nanmean(Z),np.nanmean(Z)), (MEAN+SEM, MEAN-SEM),  color='black')
+    ax4.scatter(np.nanmean(ZX), np.nanmean(Y), color='black')
+    ax4.text(np.nanmean(ZX), np.nanmean(Y), i)
+    MEAN = np.nanmean(ZX)
+    SEM = sp.stats.sem(ZX)
+    ax4.plot((MEAN+SEM, MEAN-SEM), (np.nanmean(Y),np.nanmean(Y)), color='black')
+    MEAN = np.nanmean(Y)
+    SEM = sp.stats.sem(Y)
+    ax4.plot((np.nanmean(ZX),np.nanmean(ZX)), (MEAN+SEM, MEAN-SEM),  color='black')
 
 
 if True:
@@ -1120,6 +1134,6 @@ ax.set_title('Expression spread inside IO (um2)')
 ax2.set_title('Expression spread around IO (um2)')
 ax3.set_xlabel('Normalized spread around IO')
 ax3.set_ylabel('Normalized spread in IO')
-ax4.set_xlabel('Expression spread around IO (um2)')
-ax4.set_ylabel('Expression spread inside IO (um2)')
+ax4.set_xlabel('Expression around IO (co-expression normed)')
+ax4.set_ylabel('Expression spread inside IO (IO-size normed)')
 plt.tight_layout()
