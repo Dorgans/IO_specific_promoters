@@ -3,7 +3,7 @@
 ARTICLE:
 <a href='https://www.frontiersin.org/articles/10.3389/fncel.2022.825056/abstract'>https://www.frontiersin.org/articles/10.3389/fncel.2022.825056/abstract</a>
 
-RAW IMAGING DATA:
+RAW DATA:
 <a href='https://www.ebi.ac.uk/biostudies/studies/S-BIAD408'>https://www.ebi.ac.uk/biostudies/studies/S-BIAD408</a>
 
  <it>Code used for comparing expression levels and signal properties of transgenes expressed via various viral vectors from Kiyoto Kurima.</it>
