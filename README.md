@@ -1,4 +1,11 @@
-# IO_specific_promoters
+# Designing AAV vectors for in vivo monitoring of the subtle calcium fluctuations of inferior olive network
+
+ARTICLE:
+<a href='https://www.frontiersin.org/articles/10.3389/fncel.2022.825056/abstract'>https://www.frontiersin.org/articles/10.3389/fncel.2022.825056/abstract</a>
+
+RAW IMAGING DATA:
+<a href='https://www.ebi.ac.uk/biostudies/studies/S-BIAD408'>https://www.ebi.ac.uk/biostudies/studies/S-BIAD408</a>
+
  <it>Code used for comparing expression levels and signal properties of transgenes expressed via various viral vectors from Kiyoto Kurima.</it>
 
 - #### Mostly confocal image analysis
@@ -6,7 +13,6 @@
 
 - #### Or in-vitro / in-vivo calcium imaging analysis
 <img src="https://user-images.githubusercontent.com/46438160/126941800-4bfd64ff-befc-4868-ab29-530474372caf.png" alt="AAV.PHP.eB, dual-AAV, GCamp7" height="200">
-
 
 
 ##### Datasets are available for analysis
