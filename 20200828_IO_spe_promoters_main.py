@@ -1059,7 +1059,9 @@ FULL_eGFP_SPREAD_OUT = np.multiply(FULL_eGFP_SPREAD_OUT, pix_to_um_conversion_fa
 """
 
 IO_SIGNAL_COVERAGE_PER_PROMOTER = []
+IO_SIGNAL_COVERAGE_PER_PROMOTER_REF = []
 IO_ASPECIFIC_COVERAGE_PER_PROMOTER = []
+IO_ASPECIFIC_COVERAGE_PER_PROMOTER_REF = []
 IO_SIGNAL_COVERAGE_PER_PROMOTER_normed = []
 IO_ASPECIFIC_COVERAGE_PER_PROMOTER_normed  = []
 
@@ -1074,6 +1076,8 @@ for i in LIST:
     Y = []
     Z = []
     ZX = []
+    ZY = []
+    ZZ = []
     
     for j in range(len(FULL_PROMOTER_NAMES)):    
         if i==FULL_PROMOTER_NAMES[j]:
@@ -1081,10 +1085,13 @@ for i in LIST:
             Y.append(np.divide(FULL_eGFP_SPREAD_IN[j] , FULL_tDt_SPREAD_IN[j]))
             Z.append(FULL_eGFP_SPREAD_OUT[j])#, FULL_tDt_SPREAD_OUT[j])/ np.nanmean(np.divide(FULL_eGFP_SPREAD_OUT, FULL_tDt_SPREAD_OUT)))
             ZX.append(np.divide(FULL_eGFP_SPREAD_OUT[j], FULL_tDt_SPREAD_OUT[j]))
+            ZY.append(FULL_tDt_SPREAD_IN[j])
+            ZZ.append(FULL_tDt_SPREAD_OUT[j])
             
-
+    IO_SIGNAL_COVERAGE_PER_PROMOTER_REF.append(ZY)
     IO_SIGNAL_COVERAGE_PER_PROMOTER.append(X)
     IO_ASPECIFIC_COVERAGE_PER_PROMOTER.append(Z)
+    IO_ASPECIFIC_COVERAGE_PER_PROMOTER_REF.append(ZZ)
     IO_SIGNAL_COVERAGE_PER_PROMOTER_normed.append(Y)
     IO_ASPECIFIC_COVERAGE_PER_PROMOTER_normed.append(ZX)
 

@@ -68,11 +68,11 @@ ALL_SPIKE_SF = []
 #FOR imaging-only [window=4sec, CaFluoResampling=150, Z_THRESHOLD = 4, DEFAULT_FLUO_REC_DURATION = 10]
 #FOR CF with faster events [window=3sec, CaFluoResampling=10, Z_THRESHOLD = 2, DEFAULT_FLUO_REC_DURATION = 20]
 
-CalciumEventExtractionWindow = 2 #sec.
-CalciumEventResampling = 49 #frame number for all window. Gets slower if bigger.
+CalciumEventExtractionWindow = 3 #sec.
+CalciumEventResampling = 100 #frame number for all window. Gets slower if bigger.
 WindowTimeBeforePeak = 0.5 #Croping time before rise detection (s.)
 Z_THRESHOLD = 3
-DEFAULT_FLUO_REC_DURATION  = 10
+DEFAULT_FLUO_REC_DURATION  = 20
 
 #Search for all constructions/conditions used and make ref# index
 LIST_ = []
